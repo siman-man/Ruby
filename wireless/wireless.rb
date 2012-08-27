@@ -1,61 +1,31 @@
-# encoding: utf-8
-require 'curses'
+require 'pp'
 
 class Wireless
-    include Curses
-    def initialize
-        @graph_x = 8
-        @graph_y = 50
+    # This function get an Access Point informations.
+    def ap_search
+        # aiport command
+        ap_table = `airport -s`
+        # split every access point.
+        return ap_table
     end
 
-    # This function get rssi value.
-    def get_rssi
-        # Get wireless information in MacOSX 
-        a = `airport -I`
-        data = a.split(/\n/)
-
-        # Search RSSI value
-        rssi = data[0].scan(/-\d\d/)[0].to_f
-        return rssi
-    end
-
-    def create_graph_box(win, x, y)
-        y.times do |y_pos|
-            win.setpos(@graph_y-y_pos, @graph_x)
-            win.addstr('|')
+    # This function get detail access point information 
+    def get_ap_info(ap_table)
+        ap_list = [] 
+        if ap_table == nil
+            return 0
         end
-
-        win.setpos(@graph_y, @graph_x)
-        xscale = sprintf("*%s", "-" * x)
-        win.addstr(xscale)
-    end
-
-    def create_rssi_meter(win, rssi)
-        bar = '|' * (rssi.abs-20).round
-        scale = sprintf("\t-20%s-100\n", " " * 76)
-        meter = sprintf("\t[%-80s]", bar) 
-        win.addstr(scale)
-        win.addstr(meter)
-    end
-
-    def start_monitor
-        begin
-            init_screen
-            win = Window.new(55, 200, 0, 0)
-            1000.times do |count|
-                win.clear
-                rssi = get_rssi
-                win.setpos(2,2)
-                win.addstr("\tRssi value is #{rssi}\n\n")
-                create_rssi_meter(win, rssi)
-                win.setpos(0,0)
-                create_graph_box(win, 80, 30)
-                #win.box(?|,?-,?*)
-                win.refresh
-                sleep 1.0
-            end
-        ensure
-            close_screen
+        ap_info = ap_table.split(/\n/)
+        ap_info.each_with_index do |ap, index|
+            detail_info = {}
+            next if index < 1           # first line skip
+            # divided every item.
+            ap_data = ap.split()
+            detail_info[:SSID] = ap_data[0]
+            detail_info[:RSSI] = ap_data[2].to_f
+            detail_info[:CHANNEL] = ap_data[3]
+            ap_list << detail_info
         end
+        return ap_list
     end
 end
