@@ -6,7 +6,7 @@ class WirelessTest < Test::Unit::TestCase
         w = Wireless.new
         ap_table = w.ap_search
         ap_list = w.get_ap_info(ap_table)
-        ap_list.each do |ap|
+        ap_list.each_pair do |bssid, ap|
             assert_equal String, ap[:SSID].class
             assert_equal Float, ap[:RSSI].class
             assert ap[:RSSI] < -10, "#{ap[:SSID]}, #{ap[:RSSI]} is rather than -20"
