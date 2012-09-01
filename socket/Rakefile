@@ -1,0 +1,6 @@
+require 'rake/clean'
+
+task :task do
+    CLEAN.include("**/*.rb")
+end
+
