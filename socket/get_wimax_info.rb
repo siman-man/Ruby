@@ -3,25 +3,42 @@ require 'nokogiri'
 require 'kconv'
 
 class GetWimaxInfo
-    def get_wimax_info
-        url = ""
-        page = Nokogiri::HTML(open(url))
-        rssi = 0.0
-        snr = 0.0
-        modul = nil
+    def initialize
+        @url        = ""
+        @rssi       = ""
+        @snr        = ""
+        @modulation = ""
+    end
 
-        page.css('html body table tr.values').each do |value|
-            data = value.text
-            case data
-            when /Received Signal Strength/
-                rssi = data[24..28].to_f
-            when /SNR/
-                snr = data[3..6].to_f
-            when /Modulation/
-                modul = data[10..20]
+    def get_info(text)
+        case text
+        when /^Received Signal Strength/
+            @rssi = text[24..28].strip
+            if(@rssi =~ /^-[0-9]{1,2}\.[0-9]{1,2}$/)
+                return @rssi.to_f
+            else
+                return "ERROR: Invalid RSSI value is included #{@rssi}"
             end
+        when /^SNR/
+            @snr = text[3..6].strip
+            if(@snr.to_s =~ /^[0-9]{1,2}\.[0-9]{1,2}$/)
+                return @snr.to_f
+            else
+                return "ERROR: Invalid SNR value is included #{@snr}"
+            end
+        when /^Modulation/
+            @modulation = text[10..-1]
+        else
         end
-        time = Time.now.strftime("%H:%M:%S")
-        log = sprintf("%s,%5.2f,%5.2f,%s", time, rssi, snr, modul)
+    end
+
+    def get_wimax_info(time)
+        page = Nokogiri::HTML(open(@url), nil, "utf-8")
+
+        page.css('html body table tr.values').each do |item|
+            get_info(item.text)
+        end
+
+        log = sprintf("%s,%5.2f,%5.2f,%s", time, @rssi.to_f, @snr.to_f, @modulation)
     end
 end

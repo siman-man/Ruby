@@ -18,7 +18,7 @@ loop do
     begin
         # socket open 
         socket = TCPSocket.open("localhost", port)
-        data = wimax.get
+        data = wimax.get_wimax_info(time)
         socket.write("#{today} #{time} #{data}")
         file.write(data + "\n")
     rescue
