@@ -1,31 +1,27 @@
 require 'socket'
 
-port = TCPServer.open(20000)
+port = 20000
+server = TCPServer.new(port)
+log = ServerLogStore.new('server')
 
 puts "Start socket accept"
 
+loop do
+    Thread.fork(server.accept) do |socket|
+        begin
+            host = socket.peeraddr[2]
+            ip = socket.peeraddr[3]
+            message = socket.gets
+            today, time, info = message.split() 
+            file_name = "#{ip}_#{host}.log"
 
-while true 
-    sock = port.accept
-
-    host = sock.peeraddr[2]
-    ip = sock.peeraddr[3]
-
-    if File.exist?("server.log") then
-        log = File.open("server.log", "a")
-    else
-        log = File.open("server.log", "w")
+            file = log.open_log_file(file_name)
+            data = sprintf("%s %s %s(%s)\n", time, info, host, ip)
+            file.write(data)
+            puts data
+        ensure
+            socket.close unless socket.closed?
+            file.close unless file.closed?
+        end
     end
-
-    while data = sock.gets
-        state = sprintf("%s %s(%s)\n", data, host, ip)
-        log.write(state)
-        puts state
-    end
-
-    log.close
-    sock.close
 end
-
-
-port.close

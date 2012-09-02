@@ -1,34 +1,33 @@
 require 'socket'
 require './getinfo'
 
-obj = WiMAX.new
-time = nil
-before = nil
+port = 20000
+wimax = GetWimaxInfo.new
+log = LogStore.new('client')
+file_name = "localhost.log"
 
-while true 
-    # Get Day YY_MM_DD style
-    time = Time.now.strftime("%Y_%m_%d")
+loop do
+    # Get today and time
+    # today [ YYYY/mm/dd ] [ ex 2012/09/02 ]
+    # time [ HH:MM:SS ] [ ex 10:32:45 ]
+    today, time = Time.now.strftime("%Y/%m/%d %H:%M:%S").split()
 
-    if File.exist?(time + ".log") then
-        log = File.open(time + ".log", "a")
-    else
-        log = File.open(time + ".log", "w")
-    end
+    dir_check(today)
+    file = log.log_file_open(file_name)
 
     begin
-        # socket open in port 20000 
-        sock = TCPSocket.open("localhost", 20000)
+        # socket open 
+        socket = TCPSocket.open("localhost", port)
+        data = wimax.get
+        socket.write("#{today} #{time} #{data}")
+        file.write(data + "\n")
     rescue
         # if connect failed, create error message.
         puts "TCPSocket.open failed : #$!\n"
-    else
-        puts obj.get
-        sock.write(obj.get.chomp)
-        sock.close
+    ensure
+        socket.close unless socket.closed?
+        file.close unless file.closed?
     end
-    log.write(obj.get)
-    log.close
-    before = time
     sleep 2
 end
 

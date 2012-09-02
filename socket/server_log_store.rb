@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class LogStore 
+class ServerLogStore 
     def initialize(type)
         if(type == nil)
             puts "Please input 'type' and 'hostname'\n"
@@ -72,21 +72,21 @@ class LogStore
         Dir.exist?("#{dir_name}")
     end
 
-    def log_file_open(file_name)
+    def log_file_open(filename)
         dir_name = "#{@type}_log/#{@year}/#{@month}/#{@day}"
 
-        if(check_log_file(file_name))
+        if(check_log_file)
             log = File.open("#{dir_name}/#{file_name}", "a")
         else
             log = File.open("#{dir_name}/#{file_name}", "w")
         end
     end
 
-    def check_log_file(file_name)
+    def check_log_file(filename)
         begin 
             dir_name = "#{@type}_log/#{@year}/#{@month}/#{@day}"
 
-            File.exist?("#{dir_name}/#{file_name}")
+            File.exist?("#{dir_name}/#{filename}")
         rescue
             puts ex.message
         end

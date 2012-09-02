@@ -4,7 +4,7 @@ class LogStore
     def initialize(type)
         if(type == nil)
             puts "Please input 'type' and 'hostname'\n"
-            puts "Example [ LogStore('client', 'localhost') ]\n"
+            puts "Example [ LogStore('client') ]\n"
             exit 1
         end
         @type   = type
