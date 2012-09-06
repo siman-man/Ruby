@@ -79,6 +79,7 @@ class LogStore
             log = File.open("#{dir_name}/#{file_name}", "a")
         else
             log = File.open("#{dir_name}/#{file_name}", "w")
+            log.write("TIME, RX_LEVEL, SNR, MODULATION\n")
         end
     end
 

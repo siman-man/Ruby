@@ -1,8 +1,9 @@
 require 'socket'
+require './log_store'
 
 port = 20000
 server = TCPServer.new(port)
-log = ServerLogStore.new('server')
+log = LogStore.new('server')
 
 puts "Start socket accept"
 
@@ -11,14 +12,21 @@ loop do
         begin
             host = socket.peeraddr[2]
             ip = socket.peeraddr[3]
-            message = socket.gets
-            today, time, info = message.split() 
-            file_name = "#{ip}_#{host}.log"
+            print "#{host} #{ip} send data : "
+            while message = socket.gets
+                puts message
+                today, time, info = message.split(/<>/) 
+                log.dir_check(today)
+                file_name = "#{ip}_#{host}.log"
 
-            file = log.open_log_file(file_name)
-            data = sprintf("%s %s %s(%s)\n", time, info, host, ip)
-            file.write(data)
-            puts data
+                file = log.log_file_open(file_name)
+                data = sprintf("%s\n", info)
+                file.write(data)
+                puts data
+            end
+        rescue
+            puts "TCPServer ERROR : #$!\n"
+            puts $@
         ensure
             socket.close unless socket.closed?
             file.close unless file.closed?
