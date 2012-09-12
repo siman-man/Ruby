@@ -2,10 +2,10 @@ require 'socket'
 require './get_wimax_info'
 require './log_store'
 
-port = 20000
 wimax = GetWimaxInfo.new
-log = LogStore.new('client')
+log = LogStore.new('client_local')
 host = Socket.gethostname
+file_name = "#{host}.log"
 
 loop do
     begin
@@ -14,12 +14,10 @@ loop do
         # time [ HH:MM:SS ] [ ex 10:32:45 ]
         today, time = Time.now.strftime("%Y/%m/%d %H:%M:%S").split()
 
-        # socket open 
-        socket = TCPSocket.open("localhost", port)
+        log.dir_check(today)
+        file = log.log_file_open(file_name)
         data = wimax.get_wimax_info(time)
-        message = "#{today}<>#{time}<>#{data}"
-        puts "send message #{message}"
-        socket.write("#{message}")
+        file.write(data + "\n")
     rescue
         # if connect failed, create error message.
         puts "TCPSocket.open failed : #$!\n"
@@ -27,7 +25,7 @@ loop do
         sleep 300
         retry
     ensure
-        socket.close unless socket.closed?
+        file.close unless file.closed?
     end
     sleep 2
 end

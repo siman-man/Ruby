@@ -4,7 +4,7 @@ require 'kconv'
 
 class GetWimaxInfo
     def initialize
-        @url        = ""
+        @url        = "http://133.13.52.188/ruby/psResults.html"
         @rssi       = ""
         @snr        = ""
         @modulation = ""
