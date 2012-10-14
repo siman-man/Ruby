@@ -1,0 +1,8 @@
+# encoding: utf-8
+
+class Q1
+    def devide_three(value)
+        answer = Array.new(2,0)
+        answer = value.divmod(3)
+    end
+end

@@ -5,7 +5,8 @@ require './log_store'
 port = 20000
 wimax = GetWimaxInfo.new
 log = LogStore.new('client')
-host = Socket.gethostname
+host = wimax.get_host_name
+ip = wimax.get_ip
 
 loop do
     begin
@@ -17,8 +18,7 @@ loop do
         # socket open 
         socket = TCPSocket.open("localhost", port)
         data = wimax.get_wimax_info(time)
-        message = "#{today}<>#{time}<>#{data}"
-        puts "send message #{message}"
+        message = "#{host}<>#{ip}<>#{today}<>#{time}<>#{data}"
         socket.write("#{message}")
     rescue
         # if connect failed, create error message.

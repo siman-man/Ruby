@@ -1,0 +1,13 @@
+# encoding: utf-8
+require_relative '../src/q1.rb'
+Given /^devide_three$/ do
+      pending # express the regexp above with the code you wish you had
+end
+
+When /^引数が渡されたら$/ do
+      pending # express the regexp above with the code you wish you had
+end
+
+Then /^(\d+)で割った商と余りを返すようにする$/ do |arg1|
+      pending # express the regexp above with the code you wish you had
+end

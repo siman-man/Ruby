@@ -4,8 +4,9 @@ require './log_store'
 
 wimax = GetWimaxInfo.new
 log = LogStore.new('client_local')
-host = Socket.gethostname
-file_name = "#{host}.log"
+host = wimax.get_host_name
+ip = wimax.get_ip
+file_name = "#{ip}_#{host}.log"
 
 loop do
     begin

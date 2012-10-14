@@ -1,0 +1,6 @@
+class Q1 
+    def fibonacci(a, b)
+        b = a + b
+        a = b
+    end
+end

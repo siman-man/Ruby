@@ -1,0 +1,22 @@
+# encoding: utf-8
+Feature: Personクラスの継承
+
+    Personクラスを継承して、Fighter(戦士)クラスとWizard(魔法使い)
+    クラスを作成。ただし、それぞれのクラスでは、次の仕様に従って
+    各属性の値が変化するものとする。なお、元の属性値はbase_strength,
+    base_clevernessメソッドで取得できるものとする。
+
+    Scenario: Personクラスを継承したクラスの作成
+        Given 初期状態
+        When Fighterクラスのstrengthを参照する
+        Then 元の値の1.5倍になっている
+        When Fighterクラスのclevernessを参照する
+        Then 元の値から変化していない
+        When Wizardクラスのstrengthを参照する
+        Then 元の値の半分になる
+        When Wizardクラスのclevernessを参照する
+        Then 元の値の3倍になる
+        When base_strengthを実行する
+        Then 元のstrengthの値が取得できる
+        When base_clevernessを実行する
+        Then 元のclevernessの値が取得できる

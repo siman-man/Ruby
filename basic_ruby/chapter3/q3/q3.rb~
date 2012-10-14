@@ -1,0 +1,13 @@
+def judge_value(a)
+    if a.integer?
+        puts "数値です"
+    elsif a.infinite?
+        puts "無限大です"
+    elsif a.float?
+        puts "数値ではありません"
+    end
+end
+
+judge_value(1)
+judge_value(1.0/0)
+judge_value(-1.0/0)

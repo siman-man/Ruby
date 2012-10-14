@@ -10,12 +10,9 @@ puts "Start socket accept"
 loop do
     Thread.fork(server.accept) do |socket|
         begin
-            host = socket.peeraddr[2]
-            ip = socket.peeraddr[3]
-            print "#{host} #{ip} send data : "
             while message = socket.gets
                 puts message
-                today, time, info = message.split(/<>/) 
+                host, ip, today, time, info = message.split(/<>/) 
                 log.dir_check(today)
                 file_name = "#{ip}_#{host}.log"
 

@@ -1,6 +1,7 @@
 require 'open-uri'
 require 'nokogiri'
 require 'kconv'
+require 'socket'
 
 class GetWimaxInfo
     def initialize
@@ -40,5 +41,13 @@ class GetWimaxInfo
         end
 
         log = sprintf("%s,%5.2f,%5.2f,%s", time, @rssi.to_f, @snr.to_f, @modulation)
+    end
+
+    def get_host_name
+        ENV['USER'] || ENV['LOGNAME'] || Etc.getlogin || Etc.getpwuid.name
+    end
+
+    def get_ip
+        IPSocket.getaddress(Socket::gethostname)
     end
 end

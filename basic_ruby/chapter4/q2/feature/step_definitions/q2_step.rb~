@@ -1,0 +1,14 @@
+# encoding: utf-8
+require_relative '../../src/q2.rb'
+
+Given /^初期状態$/ do
+    @q2 = Q2.new
+end
+
+When /^print_ast\(count\)を実行すると$/ do
+    @msg = @q2.print_ast(3)
+end
+
+Then /^countの数だけ\*を出力する$/ do
+      pending # express the regexp above with the code you wish you had
+end

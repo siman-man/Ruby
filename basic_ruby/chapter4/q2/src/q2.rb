@@ -1,0 +1,20 @@
+class Q2
+    def print_ast(count)
+        msg = ''
+        count.times do |i|
+            msg += '*'
+        end
+        return msg
+    end
+end
+
+q = Q2.new
+str =<<-EOS
+#{q.print_ast(1)}
+#{q.print_ast(2)}
+#{q.print_ast(4)}
+#{q.print_ast(8)}
+#{q.print_ast(16)}
+EOS
+
+puts str
