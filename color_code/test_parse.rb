@@ -19,13 +19,24 @@ class TestParse < Test::Unit::TestCase
         str2 = @p.parse_line("class Test")
         str3 = @p.parse_line("end")
         str4 = @p.parse_line("h = Hello.new")
+        str5 = @p.parse_line('puts "Hello Ruby!"')
         assert_equal(str1, "<span id='def'>def</span> <span id='func_name'>test</span>")
         assert_equal(str2, "<span id='class'>class</span> <span id='class_name'>Test</span>")
         assert_equal(str3, "<span id='end'>end</span>")
         assert_equal(str4, "h = <span id='class_name'>Hello</span>.new")
+        assert_equal(str5, "puts <span id='text'>\"Hello Ruby!\"</span>")
     end
 
+    def test_sentence2words
+        array1 = ["test", " ", "line"]
+        array2 = ["puts", ' "', "Hello", " ", "Ruby", '!"']
+        str1 = @p.sentence2words("test line")
+        str2 = @p.sentence2words('puts "Hello Ruby!"')
+        assert_equal(str1, array1) 
+        assert_equal(str2, array2) 
+    end
+    
     def test_parse_code
-        #code = @p.parse_code("class.rb")
+        code = @p.parse_code("class.rb")
     end
 end

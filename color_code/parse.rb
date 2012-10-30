@@ -7,6 +7,7 @@ class Parse
         @new_code = ''
         @def_name_flag = false
         @class_name_flag = false
+        @text_flag = false
     end
 
     def add_def_id(word)
@@ -37,17 +38,32 @@ class Parse
         "<span id='end'>" + word + "</span>"
     end
 
+    def add_text_id(ch)
+        if @text_flag 
+            @text_flag = false
+            ch + "</span>"
+        else
+            @text_flag = true
+            "<span id='text'>" + ch
+        end
+    end
+
     def upper?(str)
         /[A-Z]/ =~ str
     end
 
-    def parse_line(text)
+    def sentence2words(text)
         scanner = StringScanner.new(text)
-        new_line = ''
-        result = []
+        words = []
         until scanner.eos?
-            result.push scanner.scan(/\w+|\W+/)
+            words.push scanner.scan(/\w+|\W+/)
         end
+        return words
+    end
+
+    def parse_line(text)
+        new_line = ''
+        result = sentence2words(text)
 
         result.each do |word|
             case word
@@ -57,19 +73,29 @@ class Parse
                 new_line += add_class_id(word)
             when 'end'
                 new_line += add_end_id(word)
+            when '"'
+                new_line += add_text_id(word)
             else
                 if @def_name_flag && /\w+/ =~ word
                     new_line += add_def_name_id(word) 
                 elsif @class_name_flag && /\w+/ =~ word
-                    new_line += add_class_name_id(word) 
+                    new_line += add_class_name_id(word) unless @text_flag
                 elsif upper?(word[0])
                     if upper?(word[1])
-                        new_lien += add_module_name_id(word)
+                        new_lien += add_module_name_id(word) unless @text_flag
+                        new_lien += word if @text_flag
                     else 
-                        new_line += add_class_name_id(word)
+                        new_line += add_class_name_id(word) unless @text_flag
+                        new_line += word if @text_flag
                     end
                 else
-                    new_line += word
+                    word.each_char do |ch|
+                        if(ch == '"')
+                            new_line += add_text_id(ch)
+                        else
+                            new_line += ch
+                        end
+                    end
                 end
             end
         end
