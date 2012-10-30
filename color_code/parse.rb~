@@ -66,7 +66,7 @@ class Parse
                     if upper?(word[1])
                         new_lien += add_module_name_id(word)
                     else 
-                        new_line += add_class_name_id(word)
+                        new_line += add_class_nameid(word)
                     end
                 else
                     new_line += word

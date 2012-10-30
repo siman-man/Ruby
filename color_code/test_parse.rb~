@@ -22,7 +22,7 @@ class TestParse < Test::Unit::TestCase
         assert_equal(str1, "<span id='def'>def</span> <span id='func_name'>test</span>")
         assert_equal(str2, "<span id='class'>class</span> <span id='class_name'>Test</span>")
         assert_equal(str3, "<span id='end'>end</span>")
-        assert_equal(str4, "h = <span id='class_name'>Hello</span>.new")
+        assert_equal(str4, "h = <span id='class_name'>Hello</span>.new"
     end
 
     def test_parse_code
