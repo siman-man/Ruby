@@ -20,23 +20,48 @@ class TestParse < Test::Unit::TestCase
         str3 = @p.parse_line("end")
         str4 = @p.parse_line("h = Hello.new")
         str5 = @p.parse_line('puts "Hello Ruby!"')
+        str6 = @p.parse_line('if 3 > 4')
+        str7 = @p.parse_line('if 30 > 400')
+        str8 = @p.parse_line('case test')
+        str9 = @p.parse_line('when 3')
+        str10 = @p.parse_line('print_hello(3333)')
+        str11 = @p.parse_line('print_hello(11, 22)')
+
         assert_equal(str1, "<span id='def'>def</span> <span id='func_name'>test</span>")
         assert_equal(str2, "<span id='class'>class</span> <span id='class_name'>Test</span>")
-        assert_equal(str3, "<span id='end'>end</span>")
+        assert_equal(str3, "<span id='class_end'>end</span>")
         assert_equal(str4, "h = <span id='class_name'>Hello</span>.new")
         assert_equal(str5, "puts <span id='text'>\"Hello Ruby!\"</span>")
+        assert_equal(str6, "<span id='if'>if</span> <span id='number'>3</span> > <span id='number'>4</span>")
+        assert_equal(str7, "<span id='if'>if</span> <span id='number'>30</span> > <span id='number'>400</span>")
+        assert_equal(str8, "<span id='case'>case</span> test") 
+        assert_equal(str9, "<span id='when'>when</span> <span id='number'>3</span>") 
+        assert_equal(str10, "print_hello(<span id='number'>3333</span>)")
+        assert_equal(str11, "print_hello(<span id='number'>11</span>, <span id='number'>22</span>)")
     end
 
     def test_sentence2words
         array1 = ["test", " ", "line"]
         array2 = ["puts", ' "', "Hello", " ", "Ruby", '!"']
+        array3 = ["if", ' ', '30', ' > ', '400']
         str1 = @p.sentence2words("test line")
         str2 = @p.sentence2words('puts "Hello Ruby!"')
+        str3 = @p.sentence2words('if 30 > 400')
         assert_equal(str1, array1) 
         assert_equal(str2, array2) 
+        assert_equal(str3, array3)
     end
     
     def test_parse_code
+        str = ''
+        file = File.open("after_class.html")
+      
+        file.readlines.each do |line|
+            str += line
+        end
+        puts ''
+        #puts str
         code = @p.parse_code("class.rb")
+        assert_equal(str, code)
     end
 end

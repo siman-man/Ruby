@@ -1,8 +1,5 @@
-class Hello
-    def print_hello
-        puts "Hello Ruby!"
-    end
+class Test
+  def test
+    puts "test"
+  end
 end
-
-h = Hello.new
-h.print_hello
