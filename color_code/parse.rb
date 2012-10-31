@@ -67,9 +67,42 @@ class Parse
     "<span id='when'>" + word + "</span>"
   end
 
+  def add_do_id(word)
+    "<span id='do'>" + word + "</span>"
+  end
+
+  def add_while_id(word)
+    "<span id='while'>" + word + "</span>"
+  end
+
+  def add_for_id(word)
+    "<span id='for'>" + word + "</span>"
+  end
+
+  def add_until_id(word)
+    "<span id='until'>" + word + "</span>"
+  end
+
+  def add_loop_id(word)
+    "<span id='loop'>" + word + "</span>"
+  end
+
+  def add_break_id(word)
+    "<span id='break'>" + word + "</span>"
+  end
+
+  def add_in_id(word)
+    if @text_flag
+      word
+    else
+      "<span id='in'>" + word +"</span>"
+    end
+  end
+
   def add_number_id(ch)
     "<span id='number'>" + ch + "</span>"
   end
+
 
   def add_text_id(ch)
     if @text_flag 
@@ -116,6 +149,20 @@ class Parse
         new_line += add_case_id(word)
       when 'when'
         new_line += add_when_id(word)
+      when 'do'
+        new_line += add_do_id(word)
+      when 'for'
+        new_line += add_for_id(word)
+      when 'while'
+        new_line += add_while_id(word)
+      when 'in'
+        new_line += add_in_id(word)
+      when 'until'
+        new_line += add_until_id(word)
+      when 'loop'
+        new_line += add_loop_id(word)
+      when 'break'
+        new_line += add_break_id(word)
       else
         if @def_name_flag && /\w+/ =~ word
           new_line += add_def_name_id(word) 
