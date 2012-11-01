@@ -1,0 +1,111 @@
+// Place all the styles related to the Ruby controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+p {
+	font-size: 12pt;
+}
+
+span#code {
+	font-size: 14pt;
+}
+
+#def {
+	color: #ff69b4;
+}
+
+#class {
+	color: #ff69b4;
+}
+
+#class_name {
+  color: #32CD32;
+}
+
+#def_end {
+	color: #ff69b4;
+}
+
+#class_end {
+	color: #ff69b4;
+}
+
+#text {
+	color: red;
+}
+
+#func_name {
+	color: #20B2AA;
+}
+
+#newline {
+	color: #ff69b4;
+}
+
+#unless {
+	color: #FF8C00;
+}
+
+#if {
+	color: #FF8C00;
+}
+
+#else {
+	color: #FF8C00;
+}
+
+#end {
+	color: #FF8C00;
+}
+
+#true {
+	color: red;
+}
+
+#false {
+	color: red;
+}
+
+#case {
+	color: #FF8C00;
+}
+
+#when {
+	color: #FF8C00;
+}
+
+#arg {
+	color: red;
+}
+
+#number {
+	color: red;
+}
+
+#while {
+	color: #FF8C00;
+}
+
+#do {
+	color: #FF8C00;
+}
+
+#in {
+	color: #FF8C00;
+}
+
+#for {
+	color: #FF8C00;
+}
+
+#until {
+	color: #FF8C00;
+}
+
+#loop {
+	color: #FF8C00;
+}
+
+#break{
+	color: #FF8C00;
+}
