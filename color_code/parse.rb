@@ -122,7 +122,7 @@ class Parse
     scanner = StringScanner.new(text)
     words = []
     until scanner.eos?
-      words.push scanner.scan(/\w+|\W+/)
+      words.push scanner.scan(/\w+|\W/)
     end
     return words
   end
@@ -176,11 +176,12 @@ class Parse
             new_line += add_class_name_id(word) unless @text_flag
             new_line += word if @text_flag
           end
-        elsif word =~ /[0-9]+/
-          new_line += add_number_id(word)
+        elsif word =~ /^[0-9]+/
+          new_line += add_number_id(word) unless @text_flag
+          new_line += word if @text_flag
         else
           word.each_char do |ch|
-            if(ch == '"')
+            if(ch =~ /"|'/)
               new_line += add_text_id(ch)
             else
               new_line += ch
