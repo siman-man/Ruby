@@ -8,6 +8,7 @@ class Parse
     @def_name_flag = false
     @class_name_flag = false
     @text_flag = false
+    @formula_flag = false
     @end_list = []
   end
 
@@ -91,6 +92,10 @@ class Parse
     "<span id='break'>" + word + "</span>"
   end
 
+  def add_formula_id(word)
+    '<span id="formula">' + word  + "</span>"
+  end
+
   def add_in_id(word)
     if @text_flag
       word
@@ -103,6 +108,10 @@ class Parse
     "<span id='number'>" + ch + "</span>"
   end
 
+  def formula_end(ch)
+    '<span id="formula">' + ch + "</span>"
+  end
+
 
   def add_text_id(ch)
     if @text_flag 
@@ -110,7 +119,7 @@ class Parse
       ch + "</span>"
     else
       @text_flag = true
-      "<span id='text'>" + ch
+      '<span id="text">' + ch
     end
   end
 
@@ -122,7 +131,7 @@ class Parse
     scanner = StringScanner.new(text)
     words = []
     until scanner.eos?
-      words.push scanner.scan(/\w+|\W/)
+      words.push scanner.scan(/(\w|\d)+|\s+|\#{|\W|\S+/)
     end
     return words
   end
@@ -179,10 +188,16 @@ class Parse
         elsif word =~ /^[0-9]+/
           new_line += add_number_id(word) unless @text_flag
           new_line += word if @text_flag
+        elsif word =~ /\#{/
+          new_line += add_formula_id(word)
+          @formula_flag = true
         else
           word.each_char do |ch|
             if(ch =~ /"|'/)
               new_line += add_text_id(ch)
+            elsif(ch =~ /}/)
+              new_line += formula_end(ch) if @formula_flag
+              new_line += ch unless @formula_flag
             else
               new_line += ch
             end

@@ -34,12 +34,13 @@ class TestParse < Test::Unit::TestCase
         str17 = @p.parse_line('loop do')
         str18 = @p.parse_line('break;')
         str19 = @p.parse_line('array1 = Array.new(3)')
+        str20 = @p.parse_line('puts "1 + 1 = #{1+1}"')
 
         assert_equal(str1, "<span id='def'>def</span> <span id='func_name'>test</span>")
         assert_equal(str2, "<span id='class'>class</span> <span id='class_name'>Test</span>")
         assert_equal(str3, "<span id='class_end'>end</span>")
         assert_equal(str4, "h = <span id='class_name'>Hello</span>.new")
-        assert_equal(str5, "puts <span id='text'>\"Hello Ruby!\"</span>")
+        assert_equal(str5, 'puts <span id="text">"Hello Ruby!"</span>')
         assert_equal(str6, "<span id='if'>if</span> <span id='number'>3</span> > <span id='number'>4</span>")
         assert_equal(str7, "<span id='if'>if</span> <span id='number'>30</span> > <span id='number'>400</span>")
         assert_equal(str8, "<span id='case'>case</span> test") 
@@ -49,11 +50,12 @@ class TestParse < Test::Unit::TestCase
         assert_equal(str12, "<span id='do'>do</span>")
         assert_equal(str13, "<span id='while'>while</span> i < <span id='number'>3</span> <span id='do'>do</span>")
         assert_equal(str14, "<span id='for'>for</span> i <span id='in'>in</span> <span id='number'>0</span>..<span id='number'>2</span> <span id='do'>do</span>")
-        assert_equal(str15, "puts <span id='text'>\"in the hell\"</span>")
+        assert_equal(str15, 'puts <span id="text">"in the hell"</span>')
         assert_equal(str16, "<span id='until'>until</span> i > <span id='number'>3</span> <span id='do'>do</span>")
         assert_equal(str17, "<span id='loop'>loop</span> <span id='do'>do</span>")
         assert_equal(str18, "<span id='break'>break</span>;") 
         assert_equal(str19, "array1 = <span id='class_name'>Array</span>.new(<span id='number'>3</span>)") 
+        assert_equal(str20, 'puts <span id="text">"1 + 1 = <span id="formula">#{</span>1+1<span id="formula">}</span>"</span>')
     end
 
     def test_sentence2words
@@ -61,14 +63,17 @@ class TestParse < Test::Unit::TestCase
         array2 = ["puts", ' ', '"', "Hello", " ", "Ruby", '!', '"']
         array3 = ["if", ' ', '30', ' ', '>', ' ', '400']
         array4 = ["array1", " ", "=", " ", "[", "]"]
+        array5 = ["puts", " ", '"', "1", " ", "+", " ", "1", " ", "=", " ", "\#{", "1", "+", "1", "}", '"']
         str1 = @p.sentence2words("test line")
         str2 = @p.sentence2words('puts "Hello Ruby!"')
         str3 = @p.sentence2words('if 30 > 400')
         str4 = @p.sentence2words('array1 = []')
+        str5 = @p.sentence2words('puts "1 + 1 = #{1+1}"')
         assert_equal(str1, array1) 
         assert_equal(str2, array2) 
         assert_equal(str3, array3)
         assert_equal(str4, array4)
+        assert_equal(str5, array5)
     end
     
     def test_parse_code
