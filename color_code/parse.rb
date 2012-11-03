@@ -10,108 +10,53 @@ class Parse
     @text_flag = false
     @formula_flag = false
     @end_list = []
+
+    @tag_id_list = ['if', 'else', 'when', 'case', 'number', 'while', 'do',
+                    'for', 'until', 'loop', 'break', 'formula', 'in']
+    @tag_id_list.each do |word|
+      Parse.define_id_tag(word) 
+    end
   end
 
   def add_def_id(word)
     @end_list.push('def')
     @def_name_flag = true
-    "<span id='def'>" + word + "</span>"
+    '<span id="def">' + word + '</span>'
   end
 
   def add_def_name_id(word)
     @def_name_flag = false
-    "<span id='func_name'>" + word + "</span>"
+    '<span id="func_name">' + word + '</span>'
   end
 
   def add_class_id(word)
     @end_list.push('class')
     @class_name_flag = true
-    "<span id='class'>" + word + "</span>"
+    '<span id="class">' + word + '</span>'
   end
 
   def add_class_name_id(word)
     @class_name_flag = false
-    "<span id='class_name'>" + word + "</span>"
+    '<span id="class_name">' + word + '</span>'
   end
 
   def add_module_name_id(word)
-    "<span id='module_name'>" + word + "</span>"
+    '<span id="module_name">' + word + '</span>'
   end
 
   def add_end_id(word)
     end_type = @end_list.pop
     case end_type
     when 'def'
-      "<span id='def_end'>" + word + "</span>"
+      '<span id="def_end">' + word + '</span>'
     when 'class'
-      "<span id='class_end'>" + word + "</span>"
+      '<span id="class_end">' + word + '</span>'
     when 'module'
       "<span id='module_end'>" + word + "</span>"
     else
       "<span id='end'>" + word + "</span>"
     end
   end
-
-  def add_if_id(word)
-    "<span id='if'>" + word + "</span>"
-  end
-
-  def add_else_id(word)
-    "<span id='else'>" + word + "</span>"
-  end
-
-  def add_case_id(word)
-    "<span id='case'>" + word + "</span>"
-  end
-
-  def add_when_id(word)
-    "<span id='when'>" + word + "</span>"
-  end
-
-  def add_do_id(word)
-    "<span id='do'>" + word + "</span>"
-  end
-
-  def add_while_id(word)
-    "<span id='while'>" + word + "</span>"
-  end
-
-  def add_for_id(word)
-    "<span id='for'>" + word + "</span>"
-  end
-
-  def add_until_id(word)
-    "<span id='until'>" + word + "</span>"
-  end
-
-  def add_loop_id(word)
-    "<span id='loop'>" + word + "</span>"
-  end
-
-  def add_break_id(word)
-    "<span id='break'>" + word + "</span>"
-  end
-
-  def add_formula_id(word)
-    '<span id="formula">' + word  + "</span>"
-  end
-
-  def add_in_id(word)
-    if @text_flag
-      word
-    else
-      "<span id='in'>" + word +"</span>"
-    end
-  end
-
-  def add_number_id(ch)
-    "<span id='number'>" + ch + "</span>"
-  end
-
-  def formula_end(ch)
-    '<span id="formula">' + ch + "</span>"
-  end
-
 
   def add_text_id(ch)
     if @text_flag 
@@ -134,6 +79,18 @@ class Parse
       words.push scanner.scan(/(\w|\d)+|\s+|\#{|\W|\S+/)
     end
     return words
+  end
+
+  def self.define_id_tag(name)
+    define_method :"add_#{name}_id" do |word|
+      if @formula_flag
+        "<span id=\"#{name}\">" + word + "</span>"
+      elsif @text_flag
+        word
+      else
+        "<span id=\"#{name}\">" + word + "</span>"
+      end
+    end
   end
 
   def parse_line(text)
@@ -189,15 +146,17 @@ class Parse
           new_line += add_number_id(word) unless @text_flag
           new_line += word if @text_flag
         elsif word =~ /\#{/
-          new_line += add_formula_id(word)
           @formula_flag = true
+          new_line += add_formula_id(word) if @text_flag
+          new_line += word unless @text_flag
         else
           word.each_char do |ch|
             if(ch =~ /"|'/)
               new_line += add_text_id(ch)
             elsif(ch =~ /}/)
-              new_line += formula_end(ch) if @formula_flag
+              new_line += add_formula_id(ch) if @formula_flag
               new_line += ch unless @formula_flag
+              @formula_flag = false
             else
               new_line += ch
             end
@@ -220,4 +179,3 @@ class Parse
     return @new_code
   end
 end
-

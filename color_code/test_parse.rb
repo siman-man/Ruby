@@ -10,7 +10,7 @@ class TestParse < Test::Unit::TestCase
         assert_equal(false, @p.def_name_flag)
 
         str = @p.add_def_id("test")
-        assert_equal(str, "<span id='def'>test</span>")
+        assert_equal(str, '<span id="def">test</span>')
         assert_equal(true, @p.def_name_flag)
     end
 
@@ -36,25 +36,25 @@ class TestParse < Test::Unit::TestCase
         str19 = @p.parse_line('array1 = Array.new(3)')
         str20 = @p.parse_line('puts "1 + 1 = #{1+1}"')
 
-        assert_equal(str1, "<span id='def'>def</span> <span id='func_name'>test</span>")
-        assert_equal(str2, "<span id='class'>class</span> <span id='class_name'>Test</span>")
-        assert_equal(str3, "<span id='class_end'>end</span>")
-        assert_equal(str4, "h = <span id='class_name'>Hello</span>.new")
+        assert_equal(str1, '<span id="def">def</span> <span id="func_name">test</span>')
+        assert_equal(str2, '<span id="class">class</span> <span id="class_name">Test</span>')
+        assert_equal(str3, '<span id="class_end">end</span>')
+        assert_equal(str4, 'h = <span id="class_name">Hello</span>.new')
         assert_equal(str5, 'puts <span id="text">"Hello Ruby!"</span>')
-        assert_equal(str6, "<span id='if'>if</span> <span id='number'>3</span> > <span id='number'>4</span>")
-        assert_equal(str7, "<span id='if'>if</span> <span id='number'>30</span> > <span id='number'>400</span>")
-        assert_equal(str8, "<span id='case'>case</span> test") 
-        assert_equal(str9, "<span id='when'>when</span> <span id='number'>3</span>") 
-        assert_equal(str10, "print_hello(<span id='number'>3333</span>)")
-        assert_equal(str11, "print_hello(<span id='number'>11</span>, <span id='number'>22</span>)")
-        assert_equal(str12, "<span id='do'>do</span>")
-        assert_equal(str13, "<span id='while'>while</span> i < <span id='number'>3</span> <span id='do'>do</span>")
-        assert_equal(str14, "<span id='for'>for</span> i <span id='in'>in</span> <span id='number'>0</span>..<span id='number'>2</span> <span id='do'>do</span>")
+        assert_equal(str6, '<span id="if">if</span> <span id="number">3</span> > <span id="number">4</span>')
+        assert_equal(str7, '<span id="if">if</span> <span id="number">30</span> > <span id="number">400</span>')
+        assert_equal(str8, '<span id="case">case</span> test') 
+        assert_equal(str9, '<span id="when">when</span> <span id="number">3</span>') 
+        assert_equal(str10, 'print_hello(<span id="number">3333</span>)')
+        assert_equal(str11, 'print_hello(<span id="number">11</span>, <span id="number">22</span>)')
+        assert_equal(str12, '<span id="do">do</span>')
+        assert_equal(str13, '<span id="while">while</span> i < <span id="number">3</span> <span id="do">do</span>')
+        assert_equal(str14, '<span id="for">for</span> i <span id="in">in</span> <span id="number">0</span>..<span id="number">2</span> <span id="do">do</span>')
         assert_equal(str15, 'puts <span id="text">"in the hell"</span>')
-        assert_equal(str16, "<span id='until'>until</span> i > <span id='number'>3</span> <span id='do'>do</span>")
-        assert_equal(str17, "<span id='loop'>loop</span> <span id='do'>do</span>")
-        assert_equal(str18, "<span id='break'>break</span>;") 
-        assert_equal(str19, "array1 = <span id='class_name'>Array</span>.new(<span id='number'>3</span>)") 
+        assert_equal(str16, '<span id="until">until</span> i > <span id="number">3</span> <span id="do">do</span>')
+        assert_equal(str17, '<span id="loop">loop</span> <span id="do">do</span>')
+        assert_equal(str18, '<span id="break">break</span>;') 
+        assert_equal(str19, 'array1 = <span id="class_name">Array</span>.new(<span id="number">3</span>)') 
         assert_equal(str20, 'puts <span id="text">"1 + 1 = <span id="formula">#{</span>1+1<span id="formula">}</span>"</span>')
     end
 
@@ -85,7 +85,7 @@ class TestParse < Test::Unit::TestCase
         end
         puts ''
         #puts str
-        code = @p.parse_code("array.rb")
+        code = @p.parse_code("class.rb")
         #assert_equal(str, code)
     end
 end
