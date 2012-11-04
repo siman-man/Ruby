@@ -9,6 +9,7 @@ class Parse
     @class_name_flag = false
     @text_flag = false
     @formula_flag = false
+    @comment_flag = false
     @end_list = []
 
     @tag_id_list = ['if', 'else', 'when', 'case', 'number', 'while', 'do',
@@ -68,6 +69,15 @@ class Parse
     end
   end
 
+  def add_comment_id(ch)
+    if @comment_flag 
+      '</span>' + ch
+    else
+      @comment_flag = true
+      '<span id="comment">' + ch 
+    end
+  end
+
   def upper?(str)
     /[A-Z]/ =~ str
   end
@@ -85,7 +95,7 @@ class Parse
     define_method :"add_#{name}_id" do |word|
       if @formula_flag
         "<span id=\"#{name}\">" + word + "</span>"
-      elsif @text_flag
+      elsif @text_flag || @comment_flag
         word
       else
         "<span id=\"#{name}\">" + word + "</span>"
@@ -157,6 +167,15 @@ class Parse
               new_line += add_formula_id(ch) if @formula_flag
               new_line += ch unless @formula_flag
               @formula_flag = false
+            elsif(ch =~ /#/)
+              new_line += add_comment_id(ch) unless (@comment_flag || @text_flag)
+            elsif(ch =~ /\n/)
+              if @comment_flag
+                new_line += add_comment_id(ch)
+                @comment_flag = false
+              else
+                new_line += ch
+              end
             else
               new_line += ch
             end
