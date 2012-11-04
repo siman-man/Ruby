@@ -36,6 +36,7 @@ class TestParse < Test::Unit::TestCase
         str19 = @p.parse_line('array1 = Array.new(3)')
         str20 = @p.parse_line('puts "1 + 1 = #{1+1}"')
         str21 = @p.parse_line("# encoding: utf-8\n")
+        str22 = @p.parse_line('message =~ /Ruby/')
 
         assert_equal(str1, '<span id="def">def</span> <span id="func_name">test</span>')
         assert_equal(str2, '<span id="class">class</span> <span id="class_name">Test</span>')
@@ -58,6 +59,7 @@ class TestParse < Test::Unit::TestCase
         assert_equal(str19, 'array1 = <span id="class_name">Array</span>.new(<span id="number">3</span>)') 
         assert_equal(str20, 'puts <span id="text">"1 + 1 = <span id="formula">#{</span>1+1<span id="formula">}</span>"</span>')
         assert_equal(str21, "<span id=\"comment\"># encoding: utf-8</span>\n")
+        assert_equal(str22, 'message =~ <span id="regexp">/</span><span id="pattern">Ruby</span><span id="regexp">/</span>')
     end
 
     def test_sentence2words
@@ -87,7 +89,7 @@ class TestParse < Test::Unit::TestCase
         end
         puts ''
         #puts str
-        code = @p.parse_code("hash.rb")
+        code = @p.parse_code("regexp.rb")
         #assert_equal(str, code)
     end
 end

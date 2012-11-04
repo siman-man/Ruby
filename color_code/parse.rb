@@ -10,10 +10,11 @@ class Parse
     @text_flag = false
     @formula_flag = false
     @comment_flag = false
+    @regexp_flag = false
     @end_list = []
 
     @tag_id_list = ['if', 'else', 'when', 'case', 'number', 'while', 'do',
-                    'for', 'until', 'loop', 'break', 'formula', 'in']
+                    'for', 'until', 'loop', 'break', 'formula', 'in', 'regexp', 'pattern']
     @tag_id_list.each do |word|
       Parse.define_id_tag(word) 
     end
@@ -115,8 +116,6 @@ class Parse
         new_line += add_class_id(word)
       when 'end'
         new_line += add_end_id(word)
-      when '"'
-        new_line += add_text_id(word)
       when 'if'
         new_line += add_if_id(word)
       when 'else'
@@ -143,14 +142,14 @@ class Parse
         if @def_name_flag && /\w+/ =~ word
           new_line += add_def_name_id(word) 
         elsif @class_name_flag && /\w+/ =~ word
-          new_line += add_class_name_id(word) unless @text_flag
+          new_line += add_class_name_id(word) unless @text_flag || @regexp_flag
         elsif upper?(word[0])
-          if upper?(word[1])
-            new_lien += add_module_name_id(word) unless @text_flag
-            new_lien += word if @text_flag
-          else 
-            new_line += add_class_name_id(word) unless @text_flag
-            new_line += word if @text_flag
+          if !@text_flag && !@regexp_flag
+            new_line += add_class_name_id(word)
+          elsif @regexp_flag
+            new_line += add_pattern_id(word)
+          else
+            new_line += word
           end
         elsif word =~ /^[0-9]+/
           new_line += add_number_id(word) unless @text_flag
@@ -161,21 +160,24 @@ class Parse
           new_line += word unless @text_flag
         else
           word.each_char do |ch|
-            if(ch =~ /"|'/)
+            if ch =~ /"|'/
               new_line += add_text_id(ch)
-            elsif(ch =~ /}/)
+            elsif ch =~ /}/
               new_line += add_formula_id(ch) if @formula_flag
               new_line += ch unless @formula_flag
               @formula_flag = false
-            elsif(ch =~ /#/)
+            elsif ch =~ /#/
               new_line += add_comment_id(ch) unless (@comment_flag || @text_flag)
-            elsif(ch =~ /\n/)
+            elsif ch =~ /\n/
               if @comment_flag
                 new_line += add_comment_id(ch)
                 @comment_flag = false
               else
                 new_line += ch
               end
+            elsif ch =~ /\//
+              new_line += add_regexp_id(ch) unless @comment_flag || @text_flag
+              @regexp_flag = true
             else
               new_line += ch
             end
