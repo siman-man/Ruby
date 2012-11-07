@@ -62,6 +62,11 @@ class TestParse < Test::Unit::TestCase
         assert_equal(str22, 'message =~ <span id="regexp">/</span><span id="pattern">Ruby</span><span id="regexp">/</span>')
     end
 
+    def test_block_parse
+        str23 = @p.parse_line('File.open(\'file.rb\', \'r\') do |file|')
+        assert_equal(str23, '<span id="class_name">File</span>.open(<span id="text">\'file.rb\'</span>, <span id="text">\'r\'</span>) <span id="do">do</span> |<span id=\'block_arg\'>file</span>|')
+    end
+
     def test_sentence2words
         array1 = ["test", " ", "line", "\n"]
         array2 = ["puts", ' ', '"', "Hello", " ", "Ruby", '!', '"']
@@ -89,7 +94,7 @@ class TestParse < Test::Unit::TestCase
         end
         puts ''
         #puts str
-        code = @p.parse_code("regexp.rb")
+        code = @p.parse_code("file.rb")
         #assert_equal(str, code)
     end
 end

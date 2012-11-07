@@ -11,10 +11,12 @@ class Parse
     @formula_flag = false
     @comment_flag = false
     @regexp_flag = false
+    @block_arg_flag = false
     @end_list = []
 
     @tag_id_list = ['if', 'else', 'when', 'case', 'number', 'while', 'do',
-                    'for', 'until', 'loop', 'break', 'formula', 'in', 'regexp', 'pattern']
+                    'for', 'until', 'loop', 'break', 'formula', 'in', 'regexp', 
+                    'pattern']
     @tag_id_list.each do |word|
       Parse.define_id_tag(word) 
     end
@@ -76,6 +78,16 @@ class Parse
     else
       @comment_flag = true
       '<span id="comment">' + ch 
+    end
+  end
+
+  def add_block_arg_id(ch)
+    if @block_arg_flag 
+      @block_arg_flag = false
+      '</span>' + ch 
+    else
+      @block_arg_flag = true
+      ch + "<span id='block_arg'>" 
     end
   end
 
@@ -178,6 +190,8 @@ class Parse
             elsif ch =~ /\//
               new_line += add_regexp_id(ch) unless @comment_flag || @text_flag
               @regexp_flag = true
+            elsif ch =~ /\|/
+              new_line += add_block_arg_id(ch) unless @comment_flag || @text_flag
             else
               new_line += ch
             end
