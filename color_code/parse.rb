@@ -14,9 +14,9 @@ class Parse
     @block_arg_flag = false
     @end_list = []
 
-    @tag_id_list = ['if', 'else', 'when', 'case', 'number', 'while', 'do',
-                    'for', 'until', 'loop', 'break', 'formula', 'in', 'regexp', 
-                    'pattern']
+    @tag_id_list = ['if', 'else', 'when', 'case', 'number', 'while',
+      'for', 'until', 'loop', 'break', 'formula', 'in', 'regexp', 
+      'pattern']
     @tag_id_list.each do |word|
       Parse.define_id_tag(word) 
     end
@@ -26,6 +26,17 @@ class Parse
     @end_list.push('def')
     @def_name_flag = true
     '<span id="def">' + word + '</span>'
+  end
+
+  def add_do_id(word)
+    @end_list.push('do')
+    if @formula_flag
+      "<span id=\"do\">" + word + "</span>"
+    elsif @text_flag || @comment_flag
+      word
+    else
+      "<span id=\"do\">" + word + "</span>"
+    end
   end
 
   def add_def_name_id(word)
@@ -99,7 +110,7 @@ class Parse
     scanner = StringScanner.new(text)
     words = []
     until scanner.eos?
-      words.push scanner.scan(/(\w|\d)+|\s+|\#{|\W|\S+/)
+      words.push scanner.scan(/(@|\w|\d)+|\s+|\#{|(\+|\-|\*|\/|=)+|\W|\S+/)
     end
     return words
   end
@@ -123,9 +134,11 @@ class Parse
     result.each do |word|
       case word
       when 'def'
-        new_line += add_def_id(word)
+        new_line += add_def_id(word) unless @text_flag || @comment_flag
+        new_line += word if @text_flag || @comment_flag
       when 'class'
-        new_line += add_class_id(word)
+        new_line += add_class_id(word) unless @text_flag || @comment_flag
+        new_line += word if @text_flag || @comment_flag
       when 'end'
         new_line += add_end_id(word)
       when 'if'
