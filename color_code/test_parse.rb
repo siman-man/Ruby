@@ -6,6 +6,7 @@ class TestParse < Test::Unit::TestCase
     @p = Parse.new
   end
 
+
   def test_add_def_id
     assert_equal(false, @p.def_name_flag)
 
@@ -14,9 +15,17 @@ class TestParse < Test::Unit::TestCase
     assert_equal(true, @p.def_name_flag)
   end
 
-  def test_parse_line
+  def test_def_end
     str1 = @p.parse_line("def test")
+    @p.end_count += 1
+    str2 = @p.parse_line("end")
+    assert_equal(str1, '<span id="def">def</span> <span id="func_name">test</span>')
+    assert_equal(str2, '<span id="def_end">end</span>')
+  end
+
+  def test_parse_line
     str2 = @p.parse_line("class Test")
+    @p.end_count += 1
     str3 = @p.parse_line("end")
     str4 = @p.parse_line("h = Hello.new")
     str5 = @p.parse_line('puts "Hello Ruby!"')
@@ -38,7 +47,7 @@ class TestParse < Test::Unit::TestCase
     str21 = @p.parse_line("# encoding: utf-8\n")
     str22 = @p.parse_line('message =~ /Ruby/')
 
-    assert_equal(str1, '<span id="def">def</span> <span id="func_name">test</span>')
+
     assert_equal(str2, '<span id="class">class</span> <span id="class_name">Test</span>')
     assert_equal(str3, '<span id="class_end">end</span>')
     assert_equal(str4, 'h = <span id="class_name">Hello</span>.new')
@@ -76,6 +85,25 @@ class TestParse < Test::Unit::TestCase
     end
   end
 
+  def test_end_count
+    file = File.open("class.rb")
+    count = @p.count_end_num(file)
+    file.close
+    assert_equal(count, 3)
+
+    file = File.open('class2.rb')
+    count = @p.count_end_num(file)
+    file.close
+    assert_equal(count, 2)
+  end
+
+  def test_end_count
+    file = File.open('class2.rb')
+    count = @p.count_end_num(file)
+    file.close
+    assert_equal(count, 2)
+  end
+
   def test_sentence2words
     array1 = ["test", " ", "line", "\n"]
     array2 = ["puts", ' ', '"', "Hello", " ", "Ruby", '!', '"']
@@ -108,5 +136,7 @@ class TestParse < Test::Unit::TestCase
       str += line
     end
     puts ''
+    code = @p.parse_code('class.rb')
+    assert_equal(str, code)
   end
 end

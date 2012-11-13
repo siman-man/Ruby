@@ -2,9 +2,11 @@ require 'strscan'
 
 class Parse
   attr_reader :def_name_flag, :class_name_flag
+  attr_accessor :end_count
 
   def initialize
     @new_code = ''
+    @end_count = 0
     @def_name_flag = false
     @class_name_flag = false
     @text_flag = false
@@ -14,11 +16,34 @@ class Parse
     @block_arg_flag = false
     @end_list = []
 
-    @tag_id_list = ['if', 'else', 'when', 'case', 'number', 'while',
+    @tag_id_list = ['else', 'when', 'case', 'number', 'while',
       'for', 'until', 'loop', 'break', 'formula', 'in', 'regexp', 
       'pattern']
     @tag_id_list.each do |word|
       Parse.define_id_tag(word) 
+    end
+  end
+
+
+  def add_if_id(word)
+    @end_list.push('if')
+    if @formula_flag
+      "<span id=\"if\">" + word + "</span>"
+    elsif @text_flag || @comment_flag
+      word
+    else
+      "<span id=\"if\">" + word + "</span>"
+    end
+  end
+
+  def add_case_id(word)
+    @end_list.push('case')
+    if @formula_flag
+      "<span id=\"case\">" + word + "</span>"
+    elsif @text_flag || @comment_flag
+      word
+    else
+      "<span id=\"case\">" + word + "</span>"
     end
   end
 
@@ -60,16 +85,25 @@ class Parse
   end
 
   def add_end_id(word)
-    end_type = @end_list.pop
+    while true
+      if @end_count == @end_list.size
+        end_type = @end_list.pop
+        @end_count -= 1
+        break;
+      else
+        @end_list.pop
+      end
+    end
+
     case end_type
     when 'def'
       '<span id="def_end">' + word + '</span>'
     when 'class'
       '<span id="class_end">' + word + '</span>'
     when 'module'
-      "<span id='module_end'>" + word + "</span>"
+      '<span id="module_end">' + word + '</span>'
     else
-      "<span id='end'>" + word + "</span>"
+      '<span id="end">' + word + '</span>'
     end
   end
 
@@ -216,12 +250,27 @@ class Parse
     return new_line
   end
 
+  def count_end_num(filename)
+    file = File.open(filename) 
+    file.readlines.each do |text|
+      if text =~ /^\s*end\s*$/ 
+        @end_count += 1 
+      end
+    end
+    file.close
+    return @end_count
+  end
+
   def parse_code(filename)
+
+    count_end_num(filename)
+
     file = File.open(filename) 
 
     file.readlines.each do |text|
       @new_code += parse_line(text)
     end
+
     file.close
     puts @new_code
     return @new_code
