@@ -158,4 +158,16 @@ class TestParse < Test::Unit::TestCase
     code = @p.parse_code('class.rb')
     assert_equal(str, code)
   end
+
+  def test_parse_code2
+    str = ''
+    file = File.open("after_class2.html")
+
+    file.readlines.each do |line|
+      str += line
+    end
+    puts ''
+    code = @p.parse_code('class2.rb')
+    assert_equal(str, code)
+  end
 end

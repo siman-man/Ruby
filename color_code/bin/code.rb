@@ -1,1 +1,4 @@
-print "Hello Ruby\n"
+str = 'Hello Ruby!'
+
+p str =~ /Ruby/
+p str =~ /^Ruby/

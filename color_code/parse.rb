@@ -19,7 +19,7 @@ class Parse
 
     @tag_id_list = ['else', 'when', 'case', 'number', 'while',
       'for', 'loop', 'break', 'formula', 'in', 'regexp', 
-      'pattern', 'then', 'unless', 'elsif', 'return', 'true', 'false',
+      'pattern', 'then', 'elsif', 'return', 'true', 'false',
       'instance']
     @tag_id_list.each do |word|
       Parse.define_id_tag(word) 
@@ -27,14 +27,28 @@ class Parse
   end
 
 
-  def add_if_id(word)
+  def add_if_id(word, index)
     if @text_flag || @comment_flag || @all_text_flag
       word
-    else
+    elsif index <= 1
       @end_list.push('if')
+      '<span id="if">' + word + '</span>'
+    else
       '<span id="if">' + word + '</span>'
     end
   end
+
+  def add_unless_id(word, index)
+    if @text_flag || @comment_flag || @all_text_flag
+      word
+    elsif index <= 1
+      @end_list.push('unless')
+      '<span id="unless">' + word + '</span>'
+    else
+      '<span id="unless">' + word + '</span>'
+    end
+  end
+
 
   def add_case_id(word)
     if @text_flag || @comment_flag || @all_text_flag
@@ -67,6 +81,10 @@ class Parse
 
   def add_escape_id(word)
     '<span id="escape">' + word + '</span>'
+  end
+
+  def add_keyword_id(ch)
+    '<span id="keyword">' + ch + '</span>'
   end
 
   def add_do_id(word)
@@ -135,7 +153,7 @@ class Parse
       ch
     elsif @all_text_flag
       @all_text_flag = false
-      ch + "</span>"
+      ch + '</span>'
     else
       @all_text_flag = true
       '<span id="all_text">' + ch
@@ -192,7 +210,7 @@ class Parse
     new_line = ''
     result = sentence2words(text)
 
-    result.each do |word|
+    result.each_with_index do |word, index|
       if @tag_id_list.include?(word)
         eval("new_line += add_#{word}_id(word)")
         next
@@ -209,20 +227,22 @@ class Parse
           new_line += word
         end
       when 'if'
-        new_line += add_if_id(word)
+        new_line += add_if_id(word, index)
+      when 'unless'
+        new_line += add_unless_id(word, index)
       when 'do'
         new_line += add_do_id(word)
       when 'until'
         new_line += add_until_id(word)
       else
         if word =~ /^@(\d|\w|\_)+/
-          new_line += add_instance_id(word) unless @text_flag || @regexp_flag || @all_text_id
+          new_line += add_instance_id(word) unless @text_flag || @regexp_flag || @all_text_flag || @comment_flag
         elsif @def_name_flag && /\w+/ =~ word
           new_line += add_def_name_id(word) 
         elsif @class_name_flag && /\w+/ =~ word
-          new_line += add_class_name_id(word) unless @text_flag || @regexp_flag
+          new_line += add_class_name_id(word) unless @text_flag || @regexp_flag || @all_text_flag || @comment_flag
         elsif upper?(word[0])
-          if !@text_flag && !@regexp_flag
+          if !@text_flag && !@regexp_flag && !@all_text_flag
             new_line += add_class_name_id(word)
           elsif @regexp_flag
             new_line += add_pattern_id(word)
@@ -230,8 +250,8 @@ class Parse
             new_line += word
           end
         elsif word =~ /^[0-9]+/
-          new_line += add_number_id(word) unless @text_flag
-          new_line += word if @text_flag
+          new_line += add_number_id(word) unless @text_flag || @regexp_flag || @all_text_flag || @comment_flag
+          new_line += word if @text_flag || @regexp_flag || @all_text_flag || @comment_flag
         elsif word =~ /\#{/
           unless @regexp_flag 
             @formula_flag = true
@@ -245,6 +265,8 @@ class Parse
           new_line += word
         elsif word =~ /\\\//
           new_line += word
+        elsif word =~ /(\|\||\&\&){1}/
+          new_line += word
         else
           word.each_char do |ch|
             if ch =~ /"/
@@ -256,7 +278,7 @@ class Parse
               new_line += ch unless @formula_flag
               @formula_flag = false
             elsif ch =~ /#/
-              new_line += add_comment_id(ch) unless @comment_flag || @text_flag
+              new_line += add_comment_id(ch) unless @comment_flag || @text_flag || @all_text_flag || @regexp_flag
             elsif ch =~ /\n/
               if @comment_flag
                 new_line += add_comment_id(ch)
@@ -272,7 +294,9 @@ class Parse
                 new_line += ch
               end
             elsif ch =~ /\|/
-              new_line += add_block_arg_id(ch) unless @comment_flag || @text_flag
+              new_line += add_block_arg_id(ch) unless @comment_flag || @text_flag || @all_text_flag || @regexp_flag
+            elsif ch =~ /\^/
+              new_line += add_keyword_id(ch) if @regexp_flag
             else
               new_line += ch
             end
