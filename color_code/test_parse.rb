@@ -28,6 +28,11 @@ class TestParse < Test::Unit::TestCase
     assert_equal(str, 'print <span id="text">"Hello Ruby!<span id="escape">\n</span>"</span>')
   end
 
+  def test_instance_id
+    str = @p.parse_line('@end_count = 0')
+    assert_equal(str, '<span id="instance">@end_count</span> = <span id="number">0</span>')
+  end
+
   def test_parse_line
     str2 = @p.parse_line("class Test")
     @p.end_count += 1
@@ -118,6 +123,8 @@ class TestParse < Test::Unit::TestCase
     array6 = ["new_line", " ", "+=", " ", "add_class_name_id", "(", "word", ")"]
     array7 = ["@def_name_flag", " ", "=", " ", "false"]
     array8 = ["print", ' ', '"', "Hello", " ", "Ruby", '!', '\n', '"']
+    array9 = ["@end_count", ' ', '=', ' ', "0"]
+    array10 = ["case", " ", "test", "\n"]
     str1 = @p.sentence2words("test line\n")
     str2 = @p.sentence2words('puts "Hello Ruby!"')
     str3 = @p.sentence2words('if 30 > 400')
@@ -126,6 +133,8 @@ class TestParse < Test::Unit::TestCase
     str6 = @p.sentence2words('new_line += add_class_name_id(word)')
     str7 = @p.sentence2words('@def_name_flag = false')
     str8 = @p.sentence2words('print "Hello Ruby!\n"')
+    str9 = @p.sentence2words('@end_count = 0')
+    str10 = @p.sentence2words("case test\n")
     assert_equal(str1, array1) 
     assert_equal(str2, array2) 
     assert_equal(str3, array3)
@@ -134,6 +143,8 @@ class TestParse < Test::Unit::TestCase
     assert_equal(str6, array6)
     assert_equal(str7, array7)
     assert_equal(str8, array8)
+    assert_equal(str9, array9)
+    assert_equal(str10, array10)
   end
 
   def test_parse_code

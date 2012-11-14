@@ -19,7 +19,8 @@ class Parse
 
     @tag_id_list = ['else', 'when', 'case', 'number', 'while',
       'for', 'loop', 'break', 'formula', 'in', 'regexp', 
-      'pattern', 'then', 'unless', 'elsif', 'return', 'true', 'false']
+      'pattern', 'then', 'unless', 'elsif', 'return', 'true', 'false',
+      'instance']
     @tag_id_list.each do |word|
       Parse.define_id_tag(word) 
     end
@@ -170,7 +171,7 @@ class Parse
     scanner = StringScanner.new(text)
     words = []
     until scanner.eos?
-      words.push scanner.scan(/(@|\w|\d)+|\s+|\#{|(\+|\-|\*|\/|=)+|\\([a-z]|[A-Z]|("|')|\/){1}|\W|\S+/)
+      words.push scanner.scan(/(@|\w|\d|_)+|\s+|\#{|(\+|\-|\*|\/|=)+|\\([a-z]|[A-Z]|("|')|\/){1}|\W|\S+/)
     end
     return words
   end
@@ -192,6 +193,10 @@ class Parse
     result = sentence2words(text)
 
     result.each do |word|
+      if @tag_id_list.include?(word)
+        eval("new_line += add_#{word}_id(word)")
+        next
+      end
       case word
       when 'def'
         new_line += add_def_id(word) 
@@ -205,38 +210,14 @@ class Parse
         end
       when 'if'
         new_line += add_if_id(word)
-      when 'elsif'
-        new_line += add_elsif_id(word)
-      when 'unless'
-        new_line += add_unless_id(word)
-      when 'else'
-        new_line += add_else_id(word)
-      when 'case'
-        new_line += add_case_id(word)
-      when 'when'
-        new_line += add_when_id(word)
       when 'do'
         new_line += add_do_id(word)
-      when 'for'
-        new_line += add_for_id(word)
-      when 'while'
-        new_line += add_while_id(word)
-      when 'in'
-        new_line += add_in_id(word)
       when 'until'
         new_line += add_until_id(word)
-      when 'loop'
-        new_line += add_loop_id(word)
-      when 'break'
-        new_line += add_break_id(word)
-      when 'return'
-        new_line += add_break_id(word)
-      when 'true'
-        new_line += add_true_id(word)
-      when 'false'
-        new_line += add_false_id(word)
       else
-        if @def_name_flag && /\w+/ =~ word
+        if word =~ /^@(\d|\w|\_)+/
+          new_line += add_instance_id(word) unless @text_flag || @regexp_flag || @all_text_id
+        elsif @def_name_flag && /\w+/ =~ word
           new_line += add_def_name_id(word) 
         elsif @class_name_flag && /\w+/ =~ word
           new_line += add_class_name_id(word) unless @text_flag || @regexp_flag
@@ -281,7 +262,7 @@ class Parse
                 new_line += add_comment_id(ch)
                 @comment_flag = false
               else
-                new_line += ch
+                new_line += ch 
               end
             elsif ch =~ /\//
               unless @comment_flag || @text_flag || @all_text_flag
