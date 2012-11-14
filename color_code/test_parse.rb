@@ -23,6 +23,11 @@ class TestParse < Test::Unit::TestCase
     assert_equal(str2, '<span id="def_end">end</span>')
   end
 
+  def test_escape_id
+    str = @p.parse_line('print "Hello Ruby!\n"')
+    assert_equal(str, 'print <span id="text">"Hello Ruby!<span id="escape">\n</span>"</span>')
+  end
+
   def test_parse_line
     str2 = @p.parse_line("class Test")
     @p.end_count += 1
@@ -73,7 +78,7 @@ class TestParse < Test::Unit::TestCase
 
   def test_block_parse
     str23 = @p.parse_line('File.open(\'file.rb\', \'r\') do |file|')
-    assert_equal(str23, '<span id="class_name">File</span>.open(<span id="text">\'file.rb\'</span>, <span id="text">\'r\'</span>) <span id="do">do</span> |<span id=\'block_arg\'>file</span>|')
+    assert_equal(str23, '<span id="class_name">File</span>.open(<span id="all_text">\'file.rb\'</span>, <span id="all_text">\'r\'</span>) <span id="do">do</span> |<span id="block_arg">file</span>|')
   end
 
   def test_parse_code
@@ -112,6 +117,7 @@ class TestParse < Test::Unit::TestCase
     array5 = ["puts", " ", '"', "1", " ", "+", " ", "1", " ", "=", " ", "\#{", "1", "+", "1", "}", '"']
     array6 = ["new_line", " ", "+=", " ", "add_class_name_id", "(", "word", ")"]
     array7 = ["@def_name_flag", " ", "=", " ", "false"]
+    array8 = ["print", ' ', '"', "Hello", " ", "Ruby", '!', '\n', '"']
     str1 = @p.sentence2words("test line\n")
     str2 = @p.sentence2words('puts "Hello Ruby!"')
     str3 = @p.sentence2words('if 30 > 400')
@@ -119,6 +125,7 @@ class TestParse < Test::Unit::TestCase
     str5 = @p.sentence2words('puts "1 + 1 = #{1+1}"')
     str6 = @p.sentence2words('new_line += add_class_name_id(word)')
     str7 = @p.sentence2words('@def_name_flag = false')
+    str8 = @p.sentence2words('print "Hello Ruby!\n"')
     assert_equal(str1, array1) 
     assert_equal(str2, array2) 
     assert_equal(str3, array3)
@@ -126,6 +133,7 @@ class TestParse < Test::Unit::TestCase
     assert_equal(str5, array5)
     assert_equal(str6, array6)
     assert_equal(str7, array7)
+    assert_equal(str8, array8)
   end
 
   def test_parse_code

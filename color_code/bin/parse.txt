@@ -269,6 +269,7 @@ class Parse
             if ch =~ /"/
               new_line += add_text_id(ch)
             elsif ch =~ /'/
+              puts "#{@regexp_flag} #{text}"
               new_line += add_all_text_id(ch)
             elsif ch =~ /}/
               new_line += add_formula_id(ch) if @formula_flag
@@ -286,7 +287,7 @@ class Parse
             elsif ch =~ /\//
               unless @comment_flag || @text_flag || @all_text_flag
                 new_line += add_regexp_id(ch)
-                @regexp_flag = !@regexp_flag
+                @regexp_flag = true
               else
                 new_line += ch
               end
@@ -308,24 +309,24 @@ class Parse
     file.readlines.each do |text|
       if text =~ /^\s*end\s*$/ 
       @end_count += 1 
-      end
     end
-    file.close
-    return @end_count
+  end
+  file.close
+  return @end_count
+end
+
+def parse_code(filename)
+
+  count_end_num(filename)
+
+  file = File.open(filename) 
+
+  file.readlines.each do |text|
+    @new_code += parse_line(text)
   end
 
-  def parse_code(filename)
-
-    count_end_num(filename)
-
-    file = File.open(filename) 
-
-    file.readlines.each do |text|
-      @new_code += parse_line(text)
-    end
-
-    file.close
-    puts @new_code
-    return @new_code
-  end
+  file.close
+  puts @new_code
+  return @new_code
+end
 end

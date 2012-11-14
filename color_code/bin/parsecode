@@ -3,5 +3,5 @@ $LOAD_PATH.unshift File.expand_path('../../', __FILE__)
 require 'parse'
 
 parse = Parse.new()
-parse.parse_code('../parse.rb')
+parse.parse_code('parse.txt')
 
