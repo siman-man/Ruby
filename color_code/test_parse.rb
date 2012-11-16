@@ -15,6 +15,7 @@ class TestParse < Test::Unit::TestCase
     assert_equal(true, @p.def_name_flag)
   end
 
+
   def test_def_end
     str1 = @p.parse_line("def test")
     @p.end_count += 1
@@ -23,15 +24,18 @@ class TestParse < Test::Unit::TestCase
     assert_equal(str2, '<span id="def_end">end</span>')
   end
 
+
   def test_escape_id
     str = @p.parse_line('print "Hello Ruby!\n"')
     assert_equal(str, 'print <span id="text">"Hello Ruby!<span id="escape">\n</span>"</span>')
   end
 
+
   def test_instance_id
     str = @p.parse_line('@end_count = 0')
     assert_equal(str, '<span id="instance">@end_count</span> = <span id="number">0</span>')
   end
+
 
   def test_parse_line
     str2 = @p.parse_line("class Test")
@@ -81,10 +85,12 @@ class TestParse < Test::Unit::TestCase
     assert_equal(str22, 'message =~ <span id="regexp">/</span><span id="pattern">Ruby</span><span id="regexp">/</span>')
   end
 
+
   def test_block_parse
     str23 = @p.parse_line('File.open(\'file.rb\', \'r\') do |file|')
     assert_equal(str23, '<span id="class_name">File</span>.open(<span id="all_text">\'file.rb\'</span>, <span id="all_text">\'r\'</span>) <span id="do">do</span> |<span id="block_arg">file</span>|')
   end
+
 
   def test_parse_code
     str = ''
@@ -95,24 +101,23 @@ class TestParse < Test::Unit::TestCase
     end
   end
 
+
   def test_end_count
-    file = File.open("class.rb")
+    file = File.open("test/ruby/class.rb")
     count = @p.count_end_num(file)
     file.close
     assert_equal(count, 3)
 
-    file = File.open('class2.rb')
+  end
+
+
+  def test_end_count2
+    file = File.open('test/ruby/class2.rb')
     count = @p.count_end_num(file)
     file.close
     assert_equal(count, 2)
   end
 
-  def test_end_count
-    file = File.open('class2.rb')
-    count = @p.count_end_num(file)
-    file.close
-    assert_equal(count, 2)
-  end
 
   def test_sentence2words
     array1 = ["test", " ", "line", "\n"]
@@ -149,25 +154,37 @@ class TestParse < Test::Unit::TestCase
 
   def test_parse_code
     str = ''
-    file = File.open("after_class.html")
+    file = File.open("test/html/class.html")
 
     file.readlines.each do |line|
       str += line
     end
     puts ''
-    code = @p.parse_code('class.rb')
+    code = @p.parse_code('test/ruby/class.rb')
     assert_equal(str, code)
   end
 
   def test_parse_code2
     str = ''
-    file = File.open("after_class2.html")
+    file = File.open("test/html/class2.html")
 
     file.readlines.each do |line|
       str += line
     end
     puts ''
-    code = @p.parse_code('class2.rb')
+    code = @p.parse_code('test/ruby/class2.rb')
+    assert_equal(str, code)
+  end
+
+  def test_tail_match
+    str = ''
+    file = File.open("test/html/tail.html")
+
+    file.readlines.each do |line|
+      str += line
+    end
+    puts ''
+    code = @p.parse_code('test/ruby/tail.rb')
     assert_equal(str, code)
   end
 end

@@ -18,8 +18,8 @@ class Parse
     @end_list = []
 
     @tag_id_list = ['else', 'when', 'case', 'number', 'while',
-      'for', 'loop', 'break', 'formula', 'in', 'regexp', 
-      'pattern', 'then', 'elsif', 'return', 'true', 'false',
+      'for', 'loop', 'break', 'formula', 'in', 
+      'then', 'elsif', 'return', 'true', 'false',
       'instance']
     @tag_id_list.each do |word|
       Parse.define_id_tag(word) 
@@ -121,7 +121,6 @@ class Parse
   end
 
   def add_end_id(word)
-    p @end_list
     end_type = @end_list.pop
 
     case end_type
@@ -133,6 +132,14 @@ class Parse
       '<span id="module_end">' + word + '</span>'
     else
       '<span id="end">' + word + '</span>'
+    end
+  end
+
+  def add_regexp_id(ch)
+    if @regexp_flag
+      '</span><span id="regexp">' + ch + '</span>'
+    else 
+      '<span id="regexp">' + ch + '</span><span id="pattern">'
     end
   end
 
@@ -245,7 +252,7 @@ class Parse
           if !@text_flag && !@regexp_flag && !@all_text_flag
             new_line += add_class_name_id(word)
           elsif @regexp_flag
-            new_line += add_pattern_id(word)
+            new_line += word
           else
             new_line += word
           end
@@ -295,7 +302,7 @@ class Parse
               end
             elsif ch =~ /\|/
               new_line += add_block_arg_id(ch) unless @comment_flag || @text_flag || @all_text_flag || @regexp_flag
-            elsif ch =~ /\^/
+            elsif ch =~ /(\^|\$){1}/
               new_line += add_keyword_id(ch) if @regexp_flag
             else
               new_line += ch
