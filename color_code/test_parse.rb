@@ -187,4 +187,16 @@ class TestParse < Test::Unit::TestCase
     code = @p.parse_code('test/ruby/tail.rb')
     assert_equal(str, code)
   end
+
+  def test_initialize_code
+    str = ''
+    file = File.open("test/html/initialize.html")
+
+    file.readlines.each do |line|
+      str += line
+    end
+    puts ''
+    code = @p.parse_code('test/ruby/initialize.rb')
+    assert_equal(str, code)
+  end
 end

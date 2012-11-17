@@ -244,6 +244,7 @@ class Parse
       else
         if word =~ /^@(\d|\w|\_)+/
           new_line += add_instance_id(word) unless @text_flag || @regexp_flag || @all_text_flag || @comment_flag
+          new_line += add_instance_id(word) if @formula_flag
         elsif @def_name_flag && /\w+/ =~ word
           new_line += add_def_name_id(word) 
         elsif @class_name_flag && /\w+/ =~ word
