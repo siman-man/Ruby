@@ -12,13 +12,14 @@ class Parse
     @text_flag = false
     @all_text_flag = false
     @formula_flag = false
+    @formula_text = ''
     @comment_flag = false
     @regexp_flag = false
     @block_arg_flag = false
     @end_list = []
 
     @tag_id_list = ['else', 'when', 'case', 'number', 'while',
-      'for', 'loop', 'break', 'formula', 'in', 
+      'for', 'loop', 'break', 'in', 
       'then', 'elsif', 'return', 'true', 'false',
       'instance']
     @tag_id_list.each do |word|
@@ -65,6 +66,31 @@ class Parse
     else
       @end_list.push('until')
       '<span id="until">' + word + '</span>'
+    end
+  end
+
+  def add_formula_id(word)
+    if @formula_flag
+      if @all_text_flag
+        @all_text_flag = false
+        @formula_text = 'all_text' 
+      elsif @text_flag
+        @text_flag = false
+        @formula_text = 'text' 
+      end
+      '<span id="formula">' + word + '</span></span>'
+    elsif @comment_flag
+      word
+    elsif @formula_text == 'all_text'
+      @formula_text = ''
+      @all_text_flag = true
+      '<span id="formula">' + word + '</span><span id="all_text">'
+    elsif @formula_text == 'text'
+      @formula_text = ''
+      @text_flag = true
+      '<span id="formula">' + word + '</span><span id="text">'
+    else
+      word
     end
   end
 
@@ -244,7 +270,6 @@ class Parse
       else
         if word =~ /^@(\d|\w|\_)+/
           new_line += add_instance_id(word) unless @text_flag || @regexp_flag || @all_text_flag || @comment_flag
-          new_line += add_instance_id(word) if @formula_flag
         elsif @def_name_flag && /\w+/ =~ word
           new_line += add_def_name_id(word) 
         elsif @class_name_flag && /\w+/ =~ word
@@ -282,9 +307,8 @@ class Parse
             elsif ch =~ /'/
               new_line += add_all_text_id(ch)
             elsif ch =~ /}/
-              new_line += add_formula_id(ch) if @formula_flag
-              new_line += ch unless @formula_flag
               @formula_flag = false
+              new_line += add_formula_id(ch)
             elsif ch =~ /#/
               new_line += add_comment_id(ch) unless @comment_flag || @text_flag || @all_text_flag || @regexp_flag
             elsif ch =~ /\n/
@@ -321,24 +345,24 @@ class Parse
     file.readlines.each do |text|
       if text =~ /^\s*end\s*$/ 
       @end_count += 1 
-      end
     end
-    file.close
-    return @end_count
+  end
+  file.close
+  return @end_count
+end
+
+def parse_code(filename)
+
+  count_end_num(filename)
+
+  file = File.open(filename) 
+
+  file.readlines.each do |text|
+    @new_code += parse_line(text)
   end
 
-  def parse_code(filename)
-
-    count_end_num(filename)
-
-    file = File.open(filename) 
-
-    file.readlines.each do |text|
-      @new_code += parse_line(text)
-    end
-
-    file.close
-    puts @new_code
-    return @new_code
-  end
+  file.close
+  puts @new_code
+  return @new_code
+end
 end

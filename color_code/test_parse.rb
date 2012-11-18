@@ -80,7 +80,7 @@ class TestParse < Test::Unit::TestCase
     assert_equal(str17, '<span id="loop">loop</span> <span id="do">do</span>')
     assert_equal(str18, '<span id="break">break</span>;') 
     assert_equal(str19, 'array1 = <span id="class_name">Array</span>.new(<span id="number">3</span>)') 
-    assert_equal(str20, 'puts <span id="text">"1 + 1 = <span id="formula">#{</span>1+1<span id="formula">}</span>"</span>')
+    assert_equal(str20, 'puts <span id="text">"1 + 1 = <span id="formula">#{</span></span><span id="number">1</span>+<span id="number">1</span><span id="formula">}</span><span id="text">"</span>')
     assert_equal(str21, "<span id=\"comment\"># encoding: utf-8</span>\n")
     assert_equal(str22, 'message =~ <span id="regexp">/</span><span id="pattern">Ruby</span><span id="regexp">/</span>')
   end
@@ -197,6 +197,18 @@ class TestParse < Test::Unit::TestCase
     end
     puts ''
     code = @p.parse_code('test/ruby/initialize.rb')
+    assert_equal(str, code)
+  end
+
+  def test_development_code
+    str = ''
+    file = File.open("test/html/development.html")
+
+    file.readlines.each do |line|
+      str += line
+    end
+    puts ''
+    code = @p.parse_code('test/ruby/development.rb')
     assert_equal(str, code)
   end
 end
