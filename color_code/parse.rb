@@ -5,10 +5,10 @@ class Parse
   attr_accessor :end_count
 
   def initialize
-    @new_code = ''
     @end_count = 0
     @def_name_flag = false
     @class_name_flag = false
+    @module_name_flag = false
     @text_flag = false
     @all_text_flag = false
     @formula_flag = false
@@ -16,20 +16,29 @@ class Parse
     @comment_flag = false
     @regexp_flag = false
     @block_arg_flag = false
+    @not_add_end = false
     @end_list = []
 
-    @tag_id_list = ['else', 'when', 'case', 'number', 'while',
+    @tag_id_list = ['else', 'when', 'case', 'number', 
       'for', 'loop', 'break', 'in', 
       'then', 'elsif', 'return', 'true', 'false',
-      'instance']
+      'instance', 'block_arg']
     @tag_id_list.each do |word|
       Parse.define_id_tag(word) 
     end
+
+    @end_tag_list = ['def', 'class', 'module', 'while', 'until', 'case', 'loop']
+    @end_tag_list.each do |word|
+      Parse.define_end_tag(word) 
+    end
   end
 
+  def tag_judge
+    @text_flag || @all_text_flag || @regexp_flag || @comment_flag || @block_arg_flag
+  end
 
   def add_if_id(word, index)
-    if @text_flag || @comment_flag || @all_text_flag
+    if tag_judge 
       word
     elsif index <= 1
       @end_list.push('if')
@@ -40,32 +49,13 @@ class Parse
   end
 
   def add_unless_id(word, index)
-    if @text_flag || @comment_flag || @all_text_flag
+    if tag_judge 
       word
     elsif index <= 1
       @end_list.push('unless')
       '<span id="unless">' + word + '</span>'
     else
       '<span id="unless">' + word + '</span>'
-    end
-  end
-
-
-  def add_case_id(word)
-    if @text_flag || @comment_flag || @all_text_flag
-      word
-    else
-      @end_list.push('case')
-      '<span id="case">' + word + '</span>'
-    end
-  end
-
-  def add_until_id(word)
-    if @text_flag || @comment_flag || @all_text_flag
-      word
-    else
-      @end_list.push('until')
-      '<span id="until">' + word + '</span>'
     end
   end
 
@@ -94,17 +84,6 @@ class Parse
     end
   end
 
-
-  def add_def_id(word)
-    if @text_flag || @comment_flag || @all_text_flag
-      word
-    else
-      @def_name_flag = true
-      @end_list.push('def')
-      '<span id="def">' + word + '</span>'
-    end
-  end
-
   def add_escape_id(word)
     '<span id="escape">' + word + '</span>'
   end
@@ -113,28 +92,9 @@ class Parse
     '<span id="keyword">' + ch + '</span>'
   end
 
-  def add_do_id(word)
-    if @text_flag || @comment_flag
-      word
-    else
-      @end_list.push('do')
-      '<span id="do">' + word + '</span>'
-    end
-  end
-
   def add_def_name_id(word)
     @def_name_flag = false
     '<span id="func_name">' + word + '</span>'
-  end
-
-  def add_class_id(word)
-    if @text_flag || @comment_flag || @all_text_flag
-      word
-    else
-      @class_name_flag = true
-      @end_list.push('class')
-      '<span id="class">' + word + '</span>'
-    end
   end
 
   def add_class_name_id(word)
@@ -143,13 +103,13 @@ class Parse
   end
 
   def add_module_name_id(word)
+    @module_name_flag = false
     '<span id="module_name">' + word + '</span>'
   end
 
   def add_end_id(word)
-    end_type = @end_list.pop
 
-    case end_type
+    case @end_list.pop
     when 'def'
       '<span id="def_end">' + word + '</span>'
     when 'class'
@@ -202,18 +162,6 @@ class Parse
     end
   end
 
-  def add_block_arg_id(ch)
-    if @text_flag || @comment_flag || @all_text_flag || @regexp_flag 
-      ch
-    elsif @block_arg_flag 
-      @block_arg_flag = false
-      '</span>' + ch 
-    else
-      @block_arg_flag = true
-      ch + '<span id="block_arg">'
-    end
-  end
-
   def upper?(str)
     /[A-Z]/ =~ str
   end
@@ -239,22 +187,50 @@ class Parse
     end
   end
 
+  def self.define_end_tag(name)
+    define_method :"add_#{name}_id" do |word|
+      if tag_judge
+        word
+      else
+        @not_add_end = true
+        eval("@#{name}_name_flag = true") if word != 'do'
+        eval("@end_list.push('#{name}')")
+        "<span id=\"#{name}\">" + word + '</span>'
+      end
+    end
+  end
+
+  def add_do_id(word)
+    if tag_judge
+      word
+    else
+      @end_list.push('do') unless @not_add_end
+      '<span id="do">' + word + '</span>'
+    end
+  end
+
+
   def parse_line(text)
     new_line = ''
     result = sentence2words(text)
 
     result.each_with_index do |word, index|
-      if @tag_id_list.include?(word)
+      if @tag_id_list.include?(word) && !tag_judge
         eval("new_line += add_#{word}_id(word)")
         next
       end
+
       case word
       when 'def'
         new_line += add_def_id(word) 
       when 'class'
         new_line += add_class_id(word) 
+      when 'module'
+        new_line += add_module_id(word) 
+      when 'while'
+        new_line += add_while_id(word) 
       when 'end'
-        unless @text_flag || @all_text_flag || @comment_flag
+        unless tag_judge 
           new_line += add_end_id(word)
         else
           new_line += word
@@ -269,11 +245,15 @@ class Parse
         new_line += add_until_id(word)
       else
         if word =~ /^@(\d|\w|\_)+/
-          new_line += add_instance_id(word) unless @text_flag || @regexp_flag || @all_text_flag || @comment_flag
+          new_line += add_instance_id(word) unless tag_judge
         elsif @def_name_flag && /\w+/ =~ word
           new_line += add_def_name_id(word) 
         elsif @class_name_flag && /\w+/ =~ word
-          new_line += add_class_name_id(word) unless @text_flag || @regexp_flag || @all_text_flag || @comment_flag
+          new_line += add_class_name_id(word) unless tag_judge 
+        elsif @module_name_flag && /\w+/ =~ word
+          new_line += add_module_name_id(word) unless tag_judge 
+        elsif @block_arg_flag && /(\w|\d|[0-9]|\_)+/ =~ word
+          new_line += add_block_arg_id(word) 
         elsif upper?(word[0])
           if !@text_flag && !@regexp_flag && !@all_text_flag
             new_line += add_class_name_id(word)
@@ -283,8 +263,8 @@ class Parse
             new_line += word
           end
         elsif word =~ /^[0-9]+/
-          new_line += add_number_id(word) unless @text_flag || @regexp_flag || @all_text_flag || @comment_flag
-          new_line += word if @text_flag || @regexp_flag || @all_text_flag || @comment_flag
+          new_line += add_number_id(word) unless tag_judge 
+          new_line += word if tag_judge 
         elsif word =~ /\#{/
           unless @regexp_flag 
             @formula_flag = true
@@ -310,7 +290,7 @@ class Parse
               @formula_flag = false
               new_line += add_formula_id(ch)
             elsif ch =~ /#/
-              new_line += add_comment_id(ch) unless @comment_flag || @text_flag || @all_text_flag || @regexp_flag
+              new_line += add_comment_id(ch) unless tag_judge
             elsif ch =~ /\n/
               if @comment_flag
                 new_line += add_comment_id(ch)
@@ -318,6 +298,7 @@ class Parse
               else
                 new_line += ch 
               end
+              @not_add_end = false
             elsif ch =~ /\//
               unless @comment_flag || @text_flag || @all_text_flag
                 new_line += add_regexp_id(ch)
@@ -326,7 +307,8 @@ class Parse
                 new_line += ch
               end
             elsif ch =~ /\|/
-              new_line += add_block_arg_id(ch) unless @comment_flag || @text_flag || @all_text_flag || @regexp_flag
+              @block_arg_flag = !@block_arg_flag unless @all_text_flag || @regexp_flag || @text_flag || @regexp_flag
+              new_line += ch
             elsif ch =~ /(\^|\$){1}/
               new_line += add_keyword_id(ch) if @regexp_flag
             else
@@ -337,32 +319,18 @@ class Parse
       end
     end
 
-    return new_line
+    new_line
   end
 
-  def count_end_num(filename)
-    file = File.open(filename) 
-    file.readlines.each do |text|
-      if text =~ /^\s*end\s*$/ 
-      @end_count += 1 
+  def parse_code(filename)
+    new_code = ''
+
+    File.open(filename) do |file|
+      file.readlines.each do |line|
+        new_code += parse_line(line)
+      end
     end
+
+    new_code
   end
-  file.close
-  return @end_count
-end
-
-def parse_code(filename)
-
-  count_end_num(filename)
-
-  file = File.open(filename) 
-
-  file.readlines.each do |text|
-    @new_code += parse_line(text)
-  end
-
-  file.close
-  puts @new_code
-  return @new_code
-end
 end

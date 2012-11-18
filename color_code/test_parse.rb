@@ -2,10 +2,10 @@ require './parse'
 require 'test/unit'
 
 class TestParse < Test::Unit::TestCase
+
   def setup
     @p = Parse.new
   end
-
 
   def test_add_def_id
     assert_equal(false, @p.def_name_flag)
@@ -36,6 +36,11 @@ class TestParse < Test::Unit::TestCase
     assert_equal(str, '<span id="instance">@end_count</span> = <span id="number">0</span>')
   end
 
+  def test_while_id
+    str = @p.parse_line('while i < 3 do')
+    assert_equal(str, '<span id="while">while</span> i < <span id="number">3</span> <span id="do">do</span>')
+  end
+
 
   def test_parse_line
     str2 = @p.parse_line("class Test")
@@ -50,7 +55,6 @@ class TestParse < Test::Unit::TestCase
     str10 = @p.parse_line('print_hello(3333)')
     str11 = @p.parse_line('print_hello(11, 22)')
     str12 = @p.parse_line('do')
-    str13 = @p.parse_line('while i < 3 do')
     str14 = @p.parse_line('for i in 0..2 do')
     str15 = @p.parse_line('puts "in the hell"')
     str16 = @p.parse_line('until i > 3 do')
@@ -73,7 +77,6 @@ class TestParse < Test::Unit::TestCase
     assert_equal(str10, 'print_hello(<span id="number">3333</span>)')
     assert_equal(str11, 'print_hello(<span id="number">11</span>, <span id="number">22</span>)')
     assert_equal(str12, '<span id="do">do</span>')
-    assert_equal(str13, '<span id="while">while</span> i < <span id="number">3</span> <span id="do">do</span>')
     assert_equal(str14, '<span id="for">for</span> i <span id="in">in</span> <span id="number">0</span>..<span id="number">2</span> <span id="do">do</span>')
     assert_equal(str15, 'puts <span id="text">"in the hell"</span>')
     assert_equal(str16, '<span id="until">until</span> i > <span id="number">3</span> <span id="do">do</span>')
@@ -99,23 +102,6 @@ class TestParse < Test::Unit::TestCase
     file.readlines.each do |line|
       str += line
     end
-  end
-
-
-  def test_end_count
-    file = File.open("test/ruby/class.rb")
-    count = @p.count_end_num(file)
-    file.close
-    assert_equal(count, 3)
-
-  end
-
-
-  def test_end_count2
-    file = File.open('test/ruby/class2.rb')
-    count = @p.count_end_num(file)
-    file.close
-    assert_equal(count, 2)
   end
 
 
@@ -210,5 +196,32 @@ class TestParse < Test::Unit::TestCase
     puts ''
     code = @p.parse_code('test/ruby/development.rb')
     assert_equal(str, code)
+  end
+
+  def test_test_sample1_code
+    str = ''
+    file = File.open("test/html/test_sample1.html")
+
+    file.readlines.each do |line|
+      str += line
+    end
+    puts ''
+    code = @p.parse_code('test/ruby/test_sample1.rb')
+    assert_equal(str, code)
+  end
+
+  def self.define_test_case(pattern)
+    define_method :"test_#{pattern}_code" do
+      str = ''
+
+      File.open("test/html/#{pattern}.html") do |file|
+        file.readlines.each do |line|
+          str += line
+        end
+        puts ''
+        code = @p.parse_code("test/ruby/#{pattern}.rb")
+        assert_equal(str, code)
+      end
+    end
   end
 end
