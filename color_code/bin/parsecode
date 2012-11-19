@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
-$LOAD_PATH.unshift File.expand_path('../../', __FILE__)
-require 'parse'
+$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
+require 'colorcode'
 
 parse = Parse.new()
 puts parse.parse_code('code.rb')

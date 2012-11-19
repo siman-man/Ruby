@@ -1,0 +1,12 @@
+<span id="module">module</span> <span id="constant">Test</span>
+  <span id="def">def</span> <span id="def_name">print_hello</span>
+    puts <span id="text">"Hello"</span>
+  <span id="def_end">end</span>
+<span id="module_end">end</span>
+
+<span id="class">class</span> <span id="constant">Hello</span>
+  <span id="include">include</span> <span id="constant">Test</span>
+<span id="class_end">end</span>
+
+p = <span id="constant">Hello</span>.new
+p.print_hello

@@ -1,8 +1,14 @@
 class Hello
-  attr_accessor :message
-
   def initialize
     @message = 'Hello Ruby!'
+  end
+
+  def message
+    @message
+  end
+
+  def message=(message)
+    @message = message
   end
 end
 
