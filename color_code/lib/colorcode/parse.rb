@@ -23,13 +23,13 @@ class Parse
     @tag_id_list = ['else', 'when', 'case', 'number', 
       'for', 'loop', 'break', 'in', 'accessor', 
       'then', 'elsif', 'return', 'true', 'false',
-      'instance', 'block_arg', 'constant', 'symbol']
+      'instance', 'block_arg', 'constant']
     @tag_id_list.each do |word|
       Parse.define_id_tag(word) 
     end
 
     @end_tag_list = ['def', 'class', 'module', 'while', 'until', 'case', 'loop',
-    'until']
+      'until']
     @end_tag_list.each do |word|
       Parse.define_end_tag(word) 
     end
@@ -46,6 +46,26 @@ class Parse
       word
     else
       '<span id="include">' + word + '</span>'
+    end
+  end
+
+  def add_symbol_id(word)
+    if(word[-1] == ':') 
+      if @formula_flag
+        '<span id="symbol">' + word[0..-2] + '</span>' + word[-1]
+      elsif tag_judge 
+        word
+      else
+        '<span id="symbol">' + word[0..-2] + '</span>' + word[-1]
+      end
+    else
+      if @formula_flag
+        '<span id="symbol">' + word + '</span>'
+      elsif tag_judge 
+        word
+      else
+        '<span id="symbol">' + word + '</span>'
+      end
     end
   end
 
@@ -182,7 +202,7 @@ class Parse
     scanner = StringScanner.new(text)
     words = []
     until scanner.eos?
-      words.push scanner.scan(/(@|\w|\d|_|=|:)+|\s+|\#{|(\+|\-|\*|\/|=)+|\\([a-z]|[A-Z]|("|')|\/){1}|\W|\S+/)
+      words.push scanner.scan(/(@|\w|\d|_|=|:|>)+|\s+|\#{|(\+|\-|\*|\/|=)+|\\([a-z]|[A-Z]|("|')|\/){1}|\W|\S+/)
     end
     return words
   end
@@ -231,7 +251,7 @@ class Parse
         eval("new_line += add_#{word}_id(word)")
         next
       end
-      
+
       if @accessor_list.include?(word) && !tag_judge
         new_line += add_accessor_id(word)
         next
@@ -265,8 +285,8 @@ class Parse
       else
         if word =~ /^@(\d|\w|_)+/
           new_line += add_instance_id(word) unless tag_judge
-        elsif word =~ /^:(\d|\w|_)+/
-          new_line += add_symbol_id(word) unless tag_judge
+        elsif word =~ /^:(\d|\w|_)+|(\d|\w|_)+:$/
+          new_line += add_symbol_id(word) 
         elsif @def_name_flag && /\w+/ =~ word
           new_line += add_def_name_id(word) 
         elsif @block_arg_flag && /(\w|\d|[0-9]|\_)+/ =~ word

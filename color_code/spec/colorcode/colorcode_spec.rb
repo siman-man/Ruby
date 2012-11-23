@@ -48,6 +48,9 @@ describe "test add tag id" do
   it "should add accessor and symbol tag" do
     str = @p.parse_line('attr_accessor :message')
     str.should == '<span id="accessor">attr_accessor</span> <span id="symbol">:message</span>'
+
+    str = @p.parse_line('apple: 4, :orange => 3')
+    str.should == '<span id="symbol">apple</span>: <span id="number">4</span>, <span id="symbol">:orange</span> => <span id="number">3</span>'
   end
 
   it "should add comment tag" do
@@ -144,12 +147,18 @@ describe "test check sentence2words" do
     str = @p.sentence2words("attr_accessor :message")
     str.should == array
   end
+
+  it 'case "hash = { apple: 3, :orange => 8, "banana" => 4 }"' do
+    array = ["hash", " ", "=", " ", "{", " ", "apple:", " ", "3", ",", " ", ":orange", " ", "=>", " ", "8", ",", " ", "\"", "banana", "\"", " ", "=>", " ", "4", " ", "}"]
+    str = @p.sentence2words("hash = { apple: 3, :orange => 8, \"banana\" => 4 }")
+    str.should == array
+  end
 end
 
 describe "test exec file convert to parsed code and compare this" do
   before(:all) do
     @sample_code = ['class', 'class2', 'tail', 'initialize', 'development', 'test_sample1',
-    'include', 'accessor_before', 'accessor_after']
+    'include', 'accessor_before', 'accessor_after', 'ternary']
   end
 
   before(:each) do
@@ -200,6 +209,10 @@ describe "test exec file convert to parsed code and compare this" do
   end
 
   it "should equal accessor_after.html and converted accessor_after.rb" do
+    @str.should == @code
+  end
+
+  it "should equal ternary.html and converted ternary.rb" do
     @str.should == @code
   end
 end

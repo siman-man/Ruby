@@ -1,13 +1,5 @@
-class Hello
-  attr_accessor :message
+hash = { apple: 3, orange: 8, banana: 4 }
 
-  def initialize
-    @message = 'Hello Ruby!'
-  end
+hash.each do |key, num|
+  puts "#{key} num is #{num}"
 end
-
-h = Hello.new
-puts h.message
-
-h.message = 'Hello World!'
-puts h.message
