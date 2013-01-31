@@ -1,0 +1,5 @@
+require 'codevs/puzzle'
+require 'codevs/evol'
+require 'codevs/feeling'
+require 'codevs/stair'
+require 'matrix'
