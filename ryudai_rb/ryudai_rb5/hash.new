@@ -1,0 +1,3 @@
+hash = Hash.new("siman")
+
+p hash.default

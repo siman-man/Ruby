@@ -1,4 +1,4 @@
-require '/Users/siman/Programming/ruby/ryudairb/round4/lib/to_j'
+require '/Users/siman/Programming/ruby/Ruby/ryudai_rb/ryudai_rb4/lib/to_j'
 
 describe Numeric do
   it "range 0 - 1万" do

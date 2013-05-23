@@ -1,4 +1,6 @@
 # encoding: utf-8
+require 'nokogiri'
+require 'open-uri'
 
 class Integer
   def to_yen
@@ -46,5 +48,14 @@ class Integer
     end
 
     japanese
+  end
+end
+
+class String
+  def to_j
+    word = URI.encode(self)
+    url = %Q{http://translate.google.co.jp/#ja/en/#{word}}
+    page = Nokogiri::HTML(open(url))
+    p page =~ /こんにちわ/
   end
 end
